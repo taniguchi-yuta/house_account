@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.1
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}  # root ユーザーのパスワード
+      MYSQL_DATABASE: ${MYSQL_DATABASE}         # 初期に作成するデータベース名
+      MYSQL_USER: ${MYSQL_USER}                   # 新しいユーザー名
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}           # 新しいユーザーのパスワード
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
