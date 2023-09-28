@@ -2,3 +2,9 @@ Flask
 Flask-RESTful
 Flask-JWT-Extended
 Flask-SQLAlchemy
+python-dotenv
+Flask-Migrate
+pymysql
+cryptography
+alembic==1.11.3
+SQLAlchemy

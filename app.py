@@ -1,12 +1,4 @@
-from flask import Flask
-from flask_restful import Api, Resource, reqparse
-from flask_jwt_extended import JWTManager
-
-app = Flask(__name__)
-api = Api(app)
-
-app.config['JWT_SECRET_KEY'] = 'your-secret-key'  # 本番環境では安全なキーを使用してください
-jwt = JWTManager(app)
+from .__init__ import app
 
 # ルートの設定
 @app.route('/')
