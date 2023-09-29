@@ -5,13 +5,13 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # requirements.txtをコンテナにコピー
-COPY requirements.txt /app/
+COPY backend/requirements.txt /app/
 
 # ライブラリのインストール
 RUN pip install --no-cache-dir -r requirements.txt
 
 # アプリケーションのソースをコピー
-COPY . /app/
+COPY backend/ /app/
 
 # Flaskの実行
 CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
