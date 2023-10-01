@@ -8,3 +8,5 @@ pymysql
 cryptography
 alembic==1.11.3
 SQLAlchemy
+Authlib
+Flask-Login

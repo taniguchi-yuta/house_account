@@ -1,8 +1,9 @@
 from datetime import datetime
-from . import db
+from ...transactions.models import db
 from sqlalchemy.orm import backref
+from flask_login import UserMixin
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True)

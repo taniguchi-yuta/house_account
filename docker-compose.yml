@@ -2,15 +2,16 @@ version: '3'
 
 services:
   web:
-    build: ./backend
+    build: ./
     ports:
       - "5000:5000"
     environment:
-      - FLASK_APP=app.py
+      - FLASK_APP=/app/backend/app/app.py
       - FLASK_ENV=development
       - DATABASE_URL=mysql+pymysql://root:password@db:3306/house_account_local
     volumes:
-      - ./backend:/app
+      - ./:/app
+    working_dir: /app/backend/app
     depends_on:
       - db
 

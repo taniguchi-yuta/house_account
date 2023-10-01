@@ -1,13 +1,15 @@
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 from flask_jwt_extended import JWTManager
-from flask_sqlalchemy import SQLAlchemy
 import os
 from dotenv import load_dotenv
 from flask_migrate import Migrate
+from flask_login import LoginManager
+from .users.models.user import User
+from .transactions.models import db
 
 # dotenvの設定を読み込む
-load_dotenv(".env.local")
+load_dotenv("../.env.local")
 
 app = Flask(__name__)
 api = Api(app)
@@ -21,10 +23,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@db:3306/h
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 通常は不要なのでFalseにしておきます。
 
 # modelsで作成したdbインスタンスをインポート
-from .models import db
 db.init_app(app)
 
 # Migrateのインスタンスを作成
 migrate = Migrate(app, db)
 
-from . import models
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
