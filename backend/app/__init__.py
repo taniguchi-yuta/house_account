@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from .users.models.user import User
 from .transactions.models import db
+from .users import users_blueprint
 
 # dotenvの設定を読み込む
 load_dotenv("../.env.local")
@@ -21,6 +22,9 @@ jwt = JWTManager(app)
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@db:3306/house_account_local'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 通常は不要なのでFalseにしておきます。
+
+#users/__init__.pyで定義したBlueprintをセット
+app.register_blueprint(users_blueprint)
 
 # modelsで作成したdbインスタンスをインポート
 db.init_app(app)

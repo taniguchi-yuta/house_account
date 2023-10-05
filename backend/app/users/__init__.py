@@ -7,4 +7,4 @@ from flask import Blueprint
 users_blueprint = Blueprint('users', __name__)
 
 # ここでmodelsやroutesなど、usersパッケージ内の他のモジュールをインポートします。
-# from . import routes, utils
+from . import routes
