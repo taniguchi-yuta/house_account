@@ -3,7 +3,7 @@ from ..transactions.models import db
 from .models.user import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import users_blueprint
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 
 
 @users_blueprint.route('/api/v1/users/register', methods=['POST'])
@@ -63,3 +63,33 @@ def login():
 def logout():
     logout_user()
     return jsonify({"status": "success", "message": "Logged out successfully"}), 200
+
+
+@users_blueprint.route('/api/v1/users/update', methods=['PUT'])
+def update_user_info():
+    if not request.is_json:
+        return jsonify({"status": "error", "message": "Missing JSON in request"}), 400
+
+    if not current_user.is_authenticated:
+        return jsonify({"status": "error", "message": "User not logged in"}), 401
+
+    email = request.json.get('emailAddress', None)
+    password = request.json.get('password', None)
+    name = request.json.get('name', None)
+
+    if email:
+        existing_user = User.query.filter_by(email_address=email).first()
+        if existing_user and existing_user.id != current_user.id:
+            return jsonify({"status": "error", "message": "Email address already in use by another user"}), 400
+        current_user.email_address = email
+
+    if password:
+        hashed_password = generate_password_hash(password, method='sha256')
+        current_user.hashed_password = hashed_password
+
+    if name:
+        current_user.name = name
+
+    db.session.commit()
+
+    return jsonify({"status": "success", "message": "User information updated successfully"}), 200

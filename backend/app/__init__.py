@@ -23,6 +23,8 @@ jwt = JWTManager(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@db:3306/house_account_local'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 通常は不要なのでFalseにしておきます。
 
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'fallback_default_key')
+
 #users/__init__.pyで定義したBlueprintをセット
 app.register_blueprint(users_blueprint)
 
