@@ -28,6 +28,9 @@ def register():
     new_user = User(email_address=email, hashed_password=hashed_password, name=name)
 
     db.session.add(new_user)
+    db.session.flush()  # This will generate the new user's ID without committing the transaction
+    new_user.created_by = new_user.id
+    new_user.updated_by = new_user.id
     db.session.commit()
 
     return jsonify({"status": "success", "message": "User registered"}), 201
@@ -90,6 +93,7 @@ def update_user_info():
     if name:
         current_user.name = name
 
+    current_user.upated_by = current_user.id
     db.session.commit()
 
     return jsonify({"status": "success", "message": "User information updated successfully"}), 200

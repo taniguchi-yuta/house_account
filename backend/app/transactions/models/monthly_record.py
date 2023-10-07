@@ -1,6 +1,7 @@
 from . import db
+from ...models.mixins import TimestampMixin
 
-class MonthlyRecord(db.Model):
+class MonthlyRecord(db.Model, TimestampMixin):
     __tablename__ = 'monthly_records'
 
     id = db.Column(db.Integer, primary_key=True)

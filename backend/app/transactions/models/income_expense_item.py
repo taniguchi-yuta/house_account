@@ -1,7 +1,8 @@
 from . import db
 from sqlalchemy.orm import backref
+from ...models.mixins import TimestampMixin
 
-class IncomeExpenseItem(db.Model):
+class IncomeExpenseItem(db.Model, TimestampMixin):
     __tablename__ = 'income_expense_items'
 
     id = db.Column(db.Integer, primary_key=True)
