@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from .users.models.user import User
 from .transactions.models import db
 from .users import users_blueprint
+from .transactions import transactions_blueprint
 
 # dotenvの設定を読み込む
 load_dotenv("../.env.local")
@@ -27,6 +28,8 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'fallback_default_key')
 
 #users/__init__.pyで定義したBlueprintをセット
 app.register_blueprint(users_blueprint)
+#transactions/__init__.pyで定義したBlueprintをセット
+app.register_blueprint(transactions_blueprint)
 
 # modelsで作成したdbインスタンスをインポート
 db.init_app(app)
