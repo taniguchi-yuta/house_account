@@ -1,0 +1,23 @@
+# Vue CLIの公式イメージをベースとして使用
+FROM node:lts
+
+# 作業ディレクトリを設定
+WORKDIR /app/frontend
+
+# npmのバージョンをアップデート
+# RUN npm install -g npm@latest
+
+# package.json と package-lock.jsonをコピーしてnpm install
+COPY ./frontend/package*.json ./
+
+# 依存関係のインストール
+RUN npm install
+
+# Viteをグローバルにインストール（トラブルシュートのため）
+RUN npm install -g vite
+
+# アプリケーションのソースをコピー
+COPY ./frontend ./
+
+# Vue CLIサービスを起動
+CMD ["npm", "run", "dev"]

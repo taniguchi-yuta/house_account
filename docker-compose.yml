@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  web:
+  backend:
     build: ./
     ports:
       - "5000:5000"
@@ -10,10 +10,21 @@ services:
       - FLASK_ENV=development
       - DATABASE_URL=mysql+pymysql://root:password@db:3306/house_account_local
     volumes:
-      - ./:/app
+      - ./backend:/app/backend
     working_dir: /app/backend/app
     depends_on:
       - db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
+    working_dir: /app/frontend
 
   db:
     image: mysql:8.1
