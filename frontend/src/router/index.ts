@@ -194,6 +194,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/Register.vue')
   },
   {
+    path: '/user/update',
+    name: 'userUpdate',
+    component: () => import('@/views/UserUpdate.vue')
+  },
+  {
     path: '/404',
     component: Page404Layout,
     children: [
