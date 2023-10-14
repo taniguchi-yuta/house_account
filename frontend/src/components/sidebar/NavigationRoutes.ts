@@ -220,7 +220,7 @@ export default {
       ],
     },
     {
-      name: 'userUpdate',
+      name: 'update',
       displayName: 'menu.userUpdate',  // i18nを使用している場合、適切なキーを指定してください
       meta: {
         icon: 'vuestic-iconset-user',  // アイコンを適切に選んでください

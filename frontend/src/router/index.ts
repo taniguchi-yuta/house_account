@@ -165,17 +165,17 @@ const routes: Array<RouteRecordRaw> = [
       {
         name: 'login',
         path: 'login',
-        component: () => import('../pages/auth/login/Login.vue'),
+        component: () => import('../views/auth/login/Login.vue'),
       },
       {
         name: 'signup',
         path: 'signup',
-        component: () => import('../pages/auth/signup/Signup.vue'),
+        component: () => import('../views/auth/signup/Signup.vue'),
       },
       {
         name: 'recover-password',
         path: 'recover-password',
-        component: () => import('../pages/auth/recover-password/RecoverPassword.vue'),
+        component: () => import('../views/auth/recover-password/RecoverPassword.vue'),
       },
       {
         path: '',
@@ -184,19 +184,16 @@ const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/Login.vue')
-  },
-  {
-    path: '/register',
-    name: 'Register',
-    component: () => import('@/views/Register.vue')
-  },
-  {
-    path: '/user/update',
-    name: 'userUpdate',
-    component: () => import('@/views/UserUpdate.vue')
+    name: 'user',
+    path: '/user',
+    component: AppLayout,
+    children: [
+      {
+        name: 'update',
+        path: 'update',
+        component: () => import('@/views/user/UserUpdate.vue'),
+      },
+    ],
   },
   {
     path: '/404',
