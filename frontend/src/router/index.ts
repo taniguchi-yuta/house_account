@@ -165,17 +165,17 @@ const routes: Array<RouteRecordRaw> = [
       {
         name: 'login',
         path: 'login',
-        component: () => import('../views/auth/login/Login.vue'),
+        component: () => import('@/views/auth/login/Login.vue'),
       },
       {
         name: 'signup',
         path: 'signup',
-        component: () => import('../views/auth/signup/Signup.vue'),
+        component: () => import('@/views/auth/signup/Signup.vue'),
       },
       {
         name: 'recover-password',
         path: 'recover-password',
-        component: () => import('../views/auth/recover-password/RecoverPassword.vue'),
+        component: () => import('@/views/auth/recover-password/RecoverPassword.vue'),
       },
       {
         path: '',
@@ -189,9 +189,21 @@ const routes: Array<RouteRecordRaw> = [
     component: AppLayout,
     children: [
       {
-        name: 'update',
+        name: 'user-update',
         path: 'update',
-        component: () => import('@/views/user/UserUpdate.vue'),
+        component: () => import('@/views/user/user-update/UserUpdate.vue'),
+      },
+    ],
+  },
+  {
+    name: 'transaction',
+    path: '/transaction',
+    component: AppLayout,
+    children: [
+      {
+        name: 'transaction-item-upsert',
+        path: 'upsert/:id?',
+        component: () => import('@/views/transaction/transaction-items/TransactionItemUpsert.vue'),
       },
     ],
   },

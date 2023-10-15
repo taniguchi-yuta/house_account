@@ -220,11 +220,25 @@ export default {
       ],
     },
     {
-      name: 'update',
+      name: 'user-update',
       displayName: 'menu.userUpdate',  // i18nを使用している場合、適切なキーを指定してください
       meta: {
         icon: 'vuestic-iconset-user',  // アイコンを適切に選んでください
       },
+    },
+    {
+      name: 'transactions',
+      displayName: 'menu.transactions',
+      meta: {
+        icon: 'vuestic-iconset-extras',
+      },
+      disabled: true,
+      children: [
+        {
+          name: 'transaction-item-upsert',
+          displayName: 'menu.transactionItemCreate',
+        },
+      ],
     },
   ] as INavigationRoute[],
 }
