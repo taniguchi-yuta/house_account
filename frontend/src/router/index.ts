@@ -202,8 +202,18 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         name: 'transaction-item-upsert',
-        path: 'upsert/:id?',
+        path: 'item/upsert/:id?',
         component: () => import('@/views/transaction/transaction-items/TransactionItemUpsert.vue'),
+      },
+      {
+        name: 'monthly-transaction-upsert',
+        path: 'monthly/upsert/:id?',
+        component: () => import('@/views/transaction/monthly-transactions/MonthlyTransactionUpsert.vue'),
+      },
+      {
+        name: 'transaction-list',
+        path: 'list',
+        component: () => import('@/views/transaction/transaction-list/TransactionList.vue'),
       },
     ],
   },

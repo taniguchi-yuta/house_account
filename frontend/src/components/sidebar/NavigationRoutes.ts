@@ -238,6 +238,14 @@ export default {
           name: 'transaction-item-upsert',
           displayName: 'menu.transactionItemCreate',
         },
+        {
+          name: 'monthly-transaction-upsert',
+          displayName: 'menu.monthlyTransactionCreate',
+        },
+        {
+          name: 'transaction-list',
+          displayName: 'menu.transactionList',
+        },
       ],
     },
   ] as INavigationRoute[],

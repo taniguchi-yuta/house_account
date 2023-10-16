@@ -342,7 +342,9 @@
     "faq": "Faq",
     "userUpdate": "User Update",
     "transactions": "Transactions",
-    "transactionItemCreate": "Transaction Item Create"
+    "transactionItemCreate": "Transaction Item Create",
+    "monthlyTransactionCreate": "Monthly Transaction Create",
+    "transactionList": "Transaction List"
   },
   "messages": {
     "all": "See all messages",
@@ -589,6 +591,9 @@
     "itemType": "Transaction Type",
     "itemName": "Transaction Item Name",
     "register": "Register",
-    "update": "Update"
+    "update": "Update",
+    "month": "Month",
+    "amount": "Amount",
+    "save": "Save"
   }
 }
