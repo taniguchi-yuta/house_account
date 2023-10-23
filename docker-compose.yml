@@ -9,6 +9,7 @@ services:
       - FLASK_APP=/app/backend/app/app.py
       - FLASK_ENV=development
       - DATABASE_URL=mysql+pymysql://root:password@db:3306/house_account_local
+      - ALLOWED_ORIGINS=http://localhost:5173  # ローカル環境用の設定
     volumes:
       - ./backend:/app/backend
     working_dir: /app/backend/app

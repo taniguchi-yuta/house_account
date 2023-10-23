@@ -10,3 +10,5 @@ alembic==1.11.3
 SQLAlchemy
 Authlib
 Flask-Login
+flask-cors
+werkzeug==2.3.0

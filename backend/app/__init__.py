@@ -9,11 +9,14 @@ from .users.models.user import User
 from .transactions.models import db
 from .users import users_blueprint
 from .transactions import transactions_blueprint
+from flask_cors import CORS
 
 # dotenvの設定を読み込む
 load_dotenv("../.env.local")
 
 app = Flask(__name__)
+# allowed_origins = os.environ.get('ALLOWED_ORIGINS').split(',')
+CORS(app, supports_credentials=True)
 api = Api(app)
 
 # 本番環境では安全なキーを使用してください
