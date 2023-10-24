@@ -6,8 +6,16 @@ from . import users_blueprint
 from flask_login import login_user, logout_user, current_user
 
 
-@users_blueprint.route('/api/v1/users/register', methods=['POST'])
-def register():
+@users_blueprint.route('/api/v1/users/check_auth', methods=['GET'])
+def check_auth():
+    if current_user.is_authenticated:
+        return jsonify({"status": "success", "logged_in": True, "user": current_user.email_address}), 200
+    else:
+        return jsonify({"status": "error", "logged_in": False, "message": "User not logged in"}), 401
+
+
+@users_blueprint.route('/api/v1/users/signup', methods=['POST'])
+def signup():
     if not request.is_json:
         return jsonify({"status": "error", "message": "Missing JSON in request"}), 400
 

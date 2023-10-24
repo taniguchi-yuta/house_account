@@ -32,26 +32,44 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from 'vue'
-  import { useRouter } from 'vue-router'
-  import { useI18n } from 'vue-i18n'
-  const { t } = useI18n()
+  import { computed, ref } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useI18n } from 'vue-i18n';
+  import axios from 'axios';  // axios をインポート
 
-  const email = ref('')
-  const password = ref('')
-  const keepLoggedIn = ref(false)
-  const emailErrors = ref<string[]>([])
-  const passwordErrors = ref<string[]>([])
-  const router = useRouter()
+  const { t } = useI18n();
+  const email = ref('');
+  const password = ref('');
+  const keepLoggedIn = ref(false);
+  const emailErrors = ref<string[]>([]);
+  const passwordErrors = ref<string[]>([]);
+  const router = useRouter();
 
-  const formReady = computed(() => !emailErrors.value.length && !passwordErrors.value.length)
+  const formReady = computed(() => !emailErrors.value.length && !passwordErrors.value.length);
 
-  function onsubmit() {
-    if (!formReady.value) return
+  async function onsubmit() {
+    if (!formReady.value) return;
 
-    emailErrors.value = email.value ? [] : ['Email is required']
-    passwordErrors.value = password.value ? [] : ['Password is required']
+    emailErrors.value = email.value ? [] : ['Email is required'];
+    passwordErrors.value = password.value ? [] : ['Password is required'];
 
-    router.push({ name: 'dashboard' })
+    if (emailErrors.value.length || passwordErrors.value.length) return;
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/users/login', {
+        emailAddress: email.value,
+        password: password.value,
+      });
+
+      if (response.data.status === 'success') {
+        router.push({ name: 'dashboard' });
+      } else {
+        // ここでエラーメッセージをユーザーに表示する方法を選択してください。
+        console.error('Login error:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      // ここでエラーメッセージをユーザーに表示する方法を選択してください。
+    }
   }
 </script>
