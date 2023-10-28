@@ -3,15 +3,7 @@ from ..transactions.models import db
 from .models.user import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import users_blueprint
-from flask_login import login_user, logout_user, current_user
-
-
-@users_blueprint.route('/api/v1/users/check_auth', methods=['GET'])
-def check_auth():
-    if current_user.is_authenticated:
-        return jsonify({"status": "success", "logged_in": True, "user": current_user.email_address}), 200
-    else:
-        return jsonify({"status": "error", "logged_in": False, "message": "User not logged in"}), 401
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 
 
 @users_blueprint.route('/api/v1/users/signup', methods=['POST'])
@@ -41,7 +33,10 @@ def signup():
     new_user.updated_by = new_user.id
     db.session.commit()
 
-    return jsonify({"status": "success", "message": "User registered"}), 201
+    # 新しく登録したユーザーを即座に認証してトークンを生成
+    access_token = create_access_token(identity=new_user.id)
+
+    return jsonify({"status": "success", "message": "User registered", "token": access_token}), 201
 
 
 @users_blueprint.route('/api/v1/users/login', methods=['POST'])
@@ -63,27 +58,41 @@ def login():
 
     # 保存されているハッシュ化されたパスワードと入力されたパスワードを確認
     if check_password_hash(user.hashed_password, password):
-        login_user(user)
-        # この部分では、例えばJWTなどを使用してトークンを返すなど、ログインに成功した後の処理を実装できます。
-        return jsonify({"status": "success", "message": "Login successful"}), 200
+        access_token = create_access_token(identity=user.id)  # JWTトークンを生成
+        return jsonify({"status": "success", "message": "Login successful", "token": access_token}), 200
     else:
         return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
 
-@users_blueprint.route('/api/v1/users/logout', methods=['POST'])
-def logout():
-    logout_user()
-    return jsonify({"status": "success", "message": "Logged out successfully"}), 200
+@users_blueprint.route('/api/v1/users/current', methods=['GET'])
+@jwt_required()  # これにより、トークンが正しいことが自動的に検証されます
+def get_current_user_info():
+    user_id = get_jwt_identity()
+    print(user_id)
+    current_user = User.query.get(user_id)
+    if not current_user:
+        return jsonify({"status": "error", "message": "User not found"}), 404
+
+    return jsonify({
+        "status": "success",
+        "user": {
+            "emailAddress": current_user.email_address,
+            "name": current_user.name
+        }
+    }), 200
 
 
 @users_blueprint.route('/api/v1/users/update', methods=['PUT'])
+@jwt_required()  # これにより、トークンが正しいことが自動的に検証されます
 def update_user_info():
     if not request.is_json:
         return jsonify({"status": "error", "message": "Missing JSON in request"}), 400
 
-    if not current_user.is_authenticated:
-        return jsonify({"status": "error", "message": "User not logged in"}), 401
-
+    user_id = get_jwt_identity()
+    current_user = User.query.get(user_id)
+    if not current_user:
+        return jsonify({"status": "error", "message": "User not found"}), 404
+    
     email = request.json.get('emailAddress', None)
     password = request.json.get('password', None)
     name = request.json.get('name', None)
@@ -93,15 +102,13 @@ def update_user_info():
         if existing_user and existing_user.id != current_user.id:
             return jsonify({"status": "error", "message": "Email address already in use by another user"}), 400
         current_user.email_address = email
-
     if password:
         hashed_password = generate_password_hash(password, method='sha256')
         current_user.hashed_password = hashed_password
-
     if name:
         current_user.name = name
 
-    current_user.upated_by = current_user.id
+    current_user.updated_by = current_user.id
     db.session.commit()
 
     return jsonify({"status": "success", "message": "User information updated successfully"}), 200

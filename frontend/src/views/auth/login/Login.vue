@@ -44,6 +44,7 @@
   const emailErrors = ref<string[]>([]);
   const passwordErrors = ref<string[]>([]);
   const router = useRouter();
+  const token = ref('');
 
   const formReady = computed(() => !emailErrors.value.length && !passwordErrors.value.length);
 
@@ -62,14 +63,20 @@
       });
 
       if (response.data.status === 'success') {
+        token.value = response.data.token;  // サーバーからのトークンを保存
+        // 保存したトークンを使用して全てのリクエストにAuthorizationヘッダーを設定
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token.value;
+        // この部分はkeepLoggedInの選択に応じて、トークンの保存方法を変更する場合に使用します
+        if (keepLoggedIn.value) {
+          localStorage.setItem('Authorization', token.value); // tokenをlocalStorageに保存
+        }
         router.push({ name: 'dashboard' });
       } else {
-        // ここでエラーメッセージをユーザーに表示する方法を選択してください。
-        console.error('Login error:', response.data.message);
+        throw new Error(response.data.message);
       }
     } catch (error) {
       console.error('Error during login:', error);
-      // ここでエラーメッセージをユーザーに表示する方法を選択してください。
+      // TODO: ユーザーにエラーメッセージを表示
     }
   }
 </script>

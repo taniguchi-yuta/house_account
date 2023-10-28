@@ -44,21 +44,21 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed } from 'vue';
   import { useRouter } from 'vue-router';
   import { useI18n } from 'vue-i18n';
   import axios from 'axios';  // axios をインポート
 
   const { t } = useI18n();
-
   const email = ref('');
   const password = ref('');
   const agreedToTerms = ref(false);
   const emailErrors = ref<string[]>([]);
   const passwordErrors = ref<string[]>([]);
   const agreedToTermsErrors = ref<string[]>([]);
-  const loading = ref(false); // ローディング状態の管理のための ref
+  const loading = ref(false);  // ローディング状態の管理のための ref
   const router = useRouter();
+  const token = ref('');
 
   const formReady = computed(() => {
     return !(emailErrors.value.length || passwordErrors.value.length || agreedToTermsErrors.value.length);
@@ -74,7 +74,7 @@
 
     if (emailErrors.value.length || passwordErrors.value.length || agreedToTermsErrors.value.length) return;
 
-    loading.value = true; // ローディング状態を開始
+    loading.value = true;  // ローディング状態を開始
 
     try {
       const response = await axios.post('http://localhost:5000/api/v1/users/signup', {
@@ -86,15 +86,19 @@
       });
 
       if (response.data.status === 'success') {
+        token.value = response.data.token;  // サーバーからのトークンを保存
+        // 保存したトークンを使用して全てのリクエストにAuthorizationヘッダーを設定
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token.value;
+        localStorage.setItem('Authorization', token.value);  // tokenをlocalStorageに保存
         router.push({ name: 'dashboard' });
       } else {
         throw new Error(response.data.message);
       }
     } catch (error) {
       console.error('Error registering user:', error);
-      // ここでエラーメッセージをユーザーに表示する方法を選択してください。
+      // TODO: ユーザーにエラーメッセージを表示
     } finally {
-      loading.value = false; // ローディング状態を終了
+      loading.value = false;  // ローディング状態を終了
     }
   }
 </script>
