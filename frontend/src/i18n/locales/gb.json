@@ -344,7 +344,8 @@
     "transactions": "Transactions",
     "transactionItemCreate": "Transaction Item Create",
     "monthlyTransactionCreate": "Monthly Transaction Create",
-    "transactionList": "Transaction List"
+    "transactionList": "Transaction List",
+    "transactionItemList": "Transaction Item List"
   },
   "messages": {
     "all": "See all messages",
@@ -594,6 +595,10 @@
     "update": "Update",
     "month": "Month",
     "amount": "Amount",
-    "save": "Save"
+    "save": "Save",
+    "successfulOperation": "Success",
+    "failedOperation": "Fail",
+    "income": "income",
+    "expense": "expense"
   }
 }

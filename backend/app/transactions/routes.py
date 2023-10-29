@@ -5,9 +5,35 @@ from .models.monthly_record import MonthlyRecord
 from .models import db
 from . import transactions_blueprint
 from sqlalchemy import and_
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+
+@transactions_blueprint.route('/api/v1/transactions/item/<int:item_id>', methods=['GET'])
+@jwt_required()
+def get_transaction_item(item_id):
+    user_id = get_jwt_identity()
+
+    # ユーザーIDとアイテムIDに基づいて入出金事項を取得
+    item = IncomeExpenseItem.query.filter_by(id=item_id, user_id=user_id).first()
+
+    # アイテムが存在しない場合のエラーレスポンス
+    if not item:
+        return jsonify({"status": "error", "message": "Item not found"}), 404
+
+    # アイテムデータのレスポンス
+    item_data = {
+        "id": item.id,
+        "item_name": item.item_name,
+        "item_type": item.item_type,
+        "created_at": item.created_at.strftime('%Y-%m-%d %H:%M:%S'),  # assuming created_at is a datetime field
+        "updated_at": item.updated_at.strftime('%Y-%m-%d %H:%M:%S')   # assuming updated_at is a datetime field
+    }
+
+    return jsonify({"status": "success", "item": item_data}), 200
+
 
 @transactions_blueprint.route('/api/v1/transactions/item', methods=['POST'])
-@login_required
+@jwt_required()
 def add_item():
     if not request.is_json:
         return jsonify({"status": "error", "message": "Missing JSON in request"}), 400
@@ -20,20 +46,23 @@ def add_item():
     if not item_name:
         return jsonify({"status": "error", "message": "Missing ItemName parameter"}), 400
 
-    user_id = current_user.id
+    user_id = get_jwt_identity()
 
     new_item = IncomeExpenseItem(user_id=user_id, item_name=item_name, item_type=item_type)
     
     new_item.created_by = user_id
     new_item.updated_by = user_id
-    db.session.add(new_item)
-    db.session.commit()
-
-    return jsonify({"status": "success", "message": "Item added successfully!"}), 201
+    try:
+        db.session.add(new_item)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Item added successfully!"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": "An error occurred: " + str(e)}), 500
 
 
 @transactions_blueprint.route('/api/v1/transactions/item/<int:item_id>', methods=['PUT'])
-@login_required
+@jwt_required()
 def update_transaction_item(item_id):
     if not request.is_json:
         return jsonify({"status": "error", "message": "Missing JSON in request"}), 400
@@ -44,10 +73,12 @@ def update_transaction_item(item_id):
     if not any([item_type, item_name]):
         return jsonify({"status": "error", "message": "Provide at least one parameter to update (ItemType or ItemName)"}), 400
 
+    user_id = get_jwt_identity()
+
     item = IncomeExpenseItem.query.get(item_id)
     if not item:
         return jsonify({"status": "error", "message": "Item not found"}), 404
-    if item.user_id != current_user.id:
+    if item.user_id != user_id:
         return jsonify({"status": "error", "message": "You are not authorized to update this item"}), 403
 
     if item_type:
@@ -58,16 +89,19 @@ def update_transaction_item(item_id):
     if item_name:
         item.item_name = item_name
 
-    item.update_by = current_user.id
-    db.session.commit()
-
-    return jsonify({"status": "success", "message": "Transaction item updated successfully!"}), 200
-
+    item.updated_by = user_id  # Typo fix: update_by -> updated_by
+    try:
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Transaction item updated successfully!"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": "An error occurred: " + str(e)}), 500
+    
 
 @transactions_blueprint.route('/api/v1/transactions/items', methods=['GET'])
-@login_required
+@jwt_required()
 def get_items():
-    user_id = current_user.id
+    user_id = get_jwt_identity()
 
     # ユーザーIDに基づいて入出金事項を取得
     items = IncomeExpenseItem.query.filter_by(user_id=user_id).all()

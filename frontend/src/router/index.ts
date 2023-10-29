@@ -201,6 +201,11 @@ const routes: Array<RouteRecordRaw> = [
     component: AppLayout,
     children: [
       {
+        name: 'transaction-item-list',
+        path: 'item/list',
+        component: () => import('@/views/transaction/transaction-items/TransactionItemList.vue'),
+      },
+      {
         name: 'transaction-item-upsert',
         path: 'item/upsert/:id?',
         component: () => import('@/views/transaction/transaction-items/TransactionItemUpsert.vue'),

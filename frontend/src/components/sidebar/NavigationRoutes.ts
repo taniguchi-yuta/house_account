@@ -235,6 +235,10 @@ export default {
       disabled: true,
       children: [
         {
+          name: 'transaction-item-list',
+          displayName: 'menu.transactionItemList',
+        },
+        {
           name: 'transaction-item-upsert',
           displayName: 'menu.transactionItemCreate',
         },
