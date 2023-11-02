@@ -5,6 +5,7 @@ from .models.monthly_record import MonthlyRecord
 from .models import db
 from . import transactions_blueprint
 from sqlalchemy import and_
+from sqlalchemy.orm import joinedload
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
@@ -184,23 +185,35 @@ def update_monthly_transaction(transaction_id):
 
 
 @transactions_blueprint.route('/api/v1/transactions/monthly', methods=['GET'])
-@login_required
+@jwt_required()  # JWTトークンが有効かチェック
 def get_monthly_transactions():
-    month = request.args.get('month') # クエリパラメータから月を取得
-    user_id = current_user.id
+    month = request.args.get('month')  # クエリパラメータから月を取得
+    user_id = get_jwt_identity()  # JWTからユーザーIDを取得
 
-    if month:
-        # 月が指定された場合、その月の入出金のみを取得
-        transactions = MonthlyRecord.query.filter(and_(MonthlyRecord.user_id == user_id, MonthlyRecord.month == month)).all()
-    else:
-        # 月が指定されていない場合、全ての入出金を取得
-        transactions = MonthlyRecord.query.filter_by(user_id=user_id).all()
+    try:
+        if month:
+            # 月が指定された場合、その月の入出金のみを取得
+            transactions = MonthlyRecord.query.filter(and_(MonthlyRecord.user_id == user_id, MonthlyRecord.month == month)).options(joinedload(MonthlyRecord.income_expense_item)).all()
+        else:
+            # 月が指定されていない場合、全ての入出金を取得
+            transactions = MonthlyRecord.query.filter_by(user_id=user_id).options(joinedload(MonthlyRecord.income_expense_item)).all()
 
-    transactions_list = [{
-        "id": transaction.id,
-        "month": transaction.month,
-        "amount": str(transaction.amount),  # Numeric type needs to be converted to string for JSON serialization
-        "item_name": IncomeExpenseItem.query.get(transaction.income_expense_item_id).item_name  # Assuming there's a related model for item name
-    } for transaction in transactions]
+        transactions_list = [{
+            "id": transaction.id,
+            "month": transaction.month,
+            "amount": str(transaction.amount),
+            "item_name": transaction.income_expense_item.item_name,
+            "item_type": transaction.income_expense_item.item_type
+        } for transaction in transactions]
 
-    return jsonify({"transactions": transactions_list}), 200
+        return jsonify({
+            "success": True,
+            "transactions": transactions_list
+        }), 200
+
+    except Exception as e:
+        # エラーが発生した場合
+        return jsonify({
+            "success": False,
+            "errors": [str(e)]
+        }), 500

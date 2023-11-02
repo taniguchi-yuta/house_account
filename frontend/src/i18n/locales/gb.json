@@ -345,7 +345,8 @@
     "transactionItemCreate": "Transaction Item Create",
     "monthlyTransactionCreate": "Monthly Transaction Create",
     "transactionList": "Transaction List",
-    "transactionItemList": "Transaction Item List"
+    "transactionItemList": "Transaction Item List",
+    "monthlyTransactionList": "Monthly Transaction List"
   },
   "messages": {
     "all": "See all messages",

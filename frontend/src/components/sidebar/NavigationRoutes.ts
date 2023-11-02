@@ -243,6 +243,10 @@ export default {
           displayName: 'menu.transactionItemCreate',
         },
         {
+          name: 'monthly-transaction-list',
+          displayName: 'menu.monthlyTransactionList',
+        },
+        {
           name: 'monthly-transaction-upsert',
           displayName: 'menu.monthlyTransactionCreate',
         },
