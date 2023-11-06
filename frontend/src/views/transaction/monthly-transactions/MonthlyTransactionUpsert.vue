@@ -14,7 +14,6 @@
         <label class="pr-2">月</label>
       </div>
     </div>
-
     <div class="flex justify-between -mx-2">
       <!-- Income Section -->
       <div class="w-1/2 px-2">
@@ -37,8 +36,8 @@
             />
           </div>
         </div>
+        <button @click="addIncomeTransaction" class="mt-2 p-2 bg-blue-500 text-white rounded">収入を追加</button>
       </div>
-
       <!-- Expense Section -->
       <div class="w-1/2 px-2">
       <label>{{ t('transaction.expense') }}</label>
@@ -60,11 +59,9 @@
             />
           </div>
         </div>
+        <button @click="addExpenseTransaction" class="mt-2 p-2 bg-red-500 text-white rounded">支出を追加</button>
       </div>
     </div>
-
-
-
     <div class="mt-4">
       <label>{{ t('transaction.summary') }}</label>
       <div class="bg-gray-100 p-4 rounded">
@@ -73,16 +70,13 @@
         <p>{{ t('transaction.balance') }}: {{ totalBalance }}</p>
       </div>
     </div>
-
     <div class="flex justify-center mt-4">
       <va-button class="my-0" @click="onSubmit">{{ t('transaction.save') }}</va-button>
     </div>
-
     <!-- Success Messages Display -->
     <div v-if="successMessage">
       <p>{{ successMessage }}</p>
     </div>
-
     <!-- Error Messages Display -->
     <div v-if="errors && errors.length">
       <ul>
@@ -94,11 +88,13 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { VaDatePicker } from 'vuestic-ui';
 
 const { t } = useI18n();
+const route = useRoute();
 
 const month = ref('');
 const incomeName = ref('');
@@ -197,6 +193,16 @@ const fetchTransactionItems = async () => {
 
 onMounted(() => {
     fetchTransactionItems();  // コンポーネントがマウントされたときに入出金事項の一覧を取得
+    calculateTotalIncome();
+    calculateTotalExpense();
+
+    // パラメータから年月を取得してセットする
+    const monthParam = route.params.month; // "YYYYMM"の形式を想定しています。
+    selectedYear.value = monthParam.substring(0, 4);
+    selectedMonth.value = parseInt(monthParam.substring(4, 6), 10);
+
+    // 初期データフェッチまたはフィルタリングロジックを実行
+    fetchMonthlyTransactions();
 });
 
 // 収入と支出の入出金事項を分ける
@@ -220,6 +226,48 @@ const expenseTransactions = computed(() => {
 const filteredTransactions = computed(() => {
   return monthlyTransactions.value.filter(t => t.month === month.value);
 });
+
+// 収入の合計を計算
+const calculateTotalIncome = () => {
+  totalIncome.value = incomeTransactions.value.reduce((acc, transaction) => acc + parseFloat(transaction.incomeAmount || 0), 0);
+};
+
+// 支出の合計を計算
+const calculateTotalExpense = () => {
+  totalExpense.value = expenseTransactions.value.reduce((acc, transaction) => acc + parseFloat(transaction.expenseAmount || 0), 0);
+};
+
+// 収入トランザクションを監視して合計を更新
+watch(incomeTransactions, () => {
+  calculateTotalIncome();
+}, { deep: true });
+
+// 支出トランザクションを監視して合計を更新
+watch(expenseTransactions, () => {
+  calculateTotalExpense();
+}, { deep: true });
+
+// 取引情報をフェッチした後に合計を再計算
+watch(monthlyTransactions, () => {
+  calculateTotalIncome();
+  calculateTotalExpense();
+});
+
+// 新しい収入トランザクションを追加するメソッド
+const addIncomeTransaction = () => {
+  incomeTransactions.value.push({
+    selectedIncomeName: incomeItemNames.value[0],
+    incomeAmount: 0
+  });
+};
+
+// 新しい支出トランザクションを追加するメソッド
+const addExpenseTransaction = () => {
+  expenseTransactions.value.push({
+    selectedExpenseName: expenseItemNames.value[0],
+    expenseAmount: 0
+  });
+};
 
 async function onSubmit() {
   try {

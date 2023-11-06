@@ -9,18 +9,18 @@
     <table v-else class="table">
       <thead>
         <tr>
-          <th>{{ t('monthlyRecord.userId') }}</th>
-          <th>{{ t('monthlyRecord.incomeExpenseItemId') }}</th>
           <th>{{ t('monthlyRecord.month') }}</th>
-          <th>{{ t('monthlyRecord.amount') }}</th>
+          <th>{{ t('monthlyRecord.totalIncome') }}</th>
+          <th>{{ t('monthlyRecord.totalExpense') }}</th>
+          <th>{{ t('monthlyRecord.balance') }}</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="record in records" :key="record.id" @click="navigateToDetail(record.id)">
-          <td>{{ record.user_id }}</td>
-          <td>{{ record.income_expense_item_id }}</td>
-          <td>{{ record.month }}</td>
-          <td>{{ record.amount }}</td>
+        <tr v-for="(summary, month) in monthlySummaries" :key="month" @click="navigateToDetail(month)">
+          <td>{{ month }}</td>
+          <td>{{ summary.totalIncome }}</td>
+          <td>{{ summary.totalExpense }}</td>
+          <td>{{ summary.balance }}</td>
         </tr>
       </tbody>
     </table>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import axios from 'axios';
@@ -45,11 +45,42 @@ const isLoading = ref(true);
 const records = ref([]);
 const errorMessage = ref('');
 
+// 月別の収入と支出のサマリーを計算する
+const monthlySummaries = computed(() => {
+  const summaries = {};
+
+  // `income_expense_item` リレーションを介して `item_type` を得る
+  records.value.forEach(record => {
+    const month = record.month; // "YYYYMM" 形式
+    const item_type = record.item_type;
+    const amount = parseFloat(record.amount);
+
+    if (!summaries[month]) {
+      summaries[month] = { totalIncome: 0, totalExpense: 0, balance: 0 };
+    }
+
+    if (item_type === 'income') {
+      summaries[month].totalIncome += amount;
+    } else {
+      summaries[month].totalExpense += amount;
+    }
+
+    summaries[month].balance = summaries[month].totalIncome - summaries[month].totalExpense;
+  });
+
+  return summaries;
+});
+
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/v1/monthly-records');
-    if (response.data.status === 'success') {
-      records.value = response.data.records;
+    const response = await axios.get('http://localhost:5000/api/v1/transactions/monthly');
+    if (response.data.success) {
+      records.value = response.data.transactions.map(t => ({
+        ...t,
+        month: t.month,
+        amount: t.amount,
+        income_expense_item: t.income_expense_item
+      }));
     } else {
       errorMessage.value = t('monthlyRecord.fetchError');
     }
@@ -60,8 +91,8 @@ onMounted(async () => {
   }
 });
 
-function navigateToDetail(recordId: number) {
-  router.push({ name: 'monthly-record-detail', params: { id: recordId } }); // Assuming the route name for the detail page is 'monthly-record-detail'
+function navigateToDetail(month) {
+  router.push({ name: 'monthly-transaction-upsert', params: { month } });
 }
 </script>
 
