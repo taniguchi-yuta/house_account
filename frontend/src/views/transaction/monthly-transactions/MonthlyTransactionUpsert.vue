@@ -20,7 +20,7 @@
       <label>{{ t('transaction.income') }}</label>
         <div v-for="incomeTransaction in incomeTransactions" :key="incomeTransaction.id" class="mb-4 flex">
           <div class="w-1/2 pr-1">
-            <select v-model="incomeTransaction.selectedIncomeName" class="border rounded p-1 w-full">
+            <select v-model="incomeTransaction.item_name" class="border rounded p-1 w-full">
               <option v-for="itemName in incomeItemNames" :key="itemName" :value="itemName">
                 {{ itemName }}
               </option>
@@ -28,7 +28,7 @@
           </div>
           <div class="w-1/2 pl-1">
             <va-input
-              v-model="incomeTransaction.incomeAmount"
+              v-model="incomeTransaction.amount"
               type="number"
               :label="t('transaction.amount')"
               :error="!!amountErrors.length"
@@ -36,14 +36,14 @@
             />
           </div>
         </div>
-        <button @click="addIncomeTransaction" class="mt-2 p-2 bg-blue-500 text-white rounded">収入を追加</button>
+        <button type="button" @click="addIncomeTransaction" class="mt-2 p-2 bg-blue-500 text-white rounded">収入を追加</button>
       </div>
       <!-- Expense Section -->
       <div class="w-1/2 px-2">
       <label>{{ t('transaction.expense') }}</label>
         <div v-for="expenseTransaction in expenseTransactions" :key="expenseTransaction.id" class="mb-4 flex">
           <div class="w-1/2 pr-1">
-            <select v-model="expenseTransaction.selectedExpenseName" class="border rounded p-1 w-full">
+            <select v-model="expenseTransaction.item_name" class="border rounded p-1 w-full">
               <option v-for="itemName in expenseItemNames" :key="itemName" :value="itemName">
                 {{ itemName }}
               </option>
@@ -51,7 +51,7 @@
           </div>
           <div class="w-1/2 pl-1">
             <va-input
-              v-model="expenseTransaction.expenseAmount"
+              v-model="expenseTransaction.amount"
               type="number"
               :label="t('transaction.amount')"
               :error="!!amountErrors.length"
@@ -59,7 +59,7 @@
             />
           </div>
         </div>
-        <button @click="addExpenseTransaction" class="mt-2 p-2 bg-red-500 text-white rounded">支出を追加</button>
+        <button type="button" @click="addExpenseTransaction" class="mt-2 p-2 bg-red-500 text-white rounded">支出を追加</button>
       </div>
     </div>
     <div class="mt-4">
@@ -109,9 +109,6 @@ const monthErrors = ref([]);
 const itemNameErrors = ref([]);
 const amountErrors = ref([]);
 
-const totalIncome = ref(0);
-const totalExpense = ref(0);
-
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
 const selectedYear = ref(currentYear); // 現在の年をデフォルトとして設定
@@ -124,13 +121,12 @@ const monthlyTransactions = ref([]);
 // 入出金事項の一覧を保存するためのref
 const transactionItems = ref([]);
 
+const incomeTransactions = ref([]); // 収入トランザクションのリアクティブ配列
+const expenseTransactions = ref([]); // 支出トランザクションのリアクティブ配列
+
 const updateMonthValue = () => {
   month.value = `${selectedYear.value}${String(selectedMonth.value).padStart(2, '0')}`;
 };
-
-const totalBalance = computed(() => {
-  return totalIncome.value - totalExpense.value;
-});
 
 watch(incomeAmount, (newValue) => {
   totalIncome.value = parseFloat(newValue) || 0;
@@ -140,42 +136,31 @@ watch(expenseAmount, (newValue) => {
   totalExpense.value = parseFloat(newValue) || 0;
 });
 
+
 watch([selectedYear, selectedMonth], () => {
-    month.value = `${selectedYear.value}${String(selectedMonth.value).padStart(2, '0')}`;
-    fetchMonthlyTransactions();
-  });
+  updateFilteredTransactions();
+}, { deep: true });
 
-const fetchMonthlyTransactions = async () => {
-    try {
-      // Convert month to 'YYYYMM' format
-      const monthParam = `${selectedYear.value}${String(selectedMonth.value).padStart(2, '0')}`;
-      const response = await axios.get('http://localhost:5000/api/v1/transactions/monthly', {
-        params: {
-          month: monthParam
-        }
-      });
-
-      if (response.data && response.data.success) {
-        // Map each transaction to include a selected income and expense name
-        monthlyTransactions.value = response.data.transactions.map(t => {
-          return {
-            ...t,
-            selectedIncomeName: t.item_type === 'income' ? t.item_name : incomeItemNames.value[0], // Use existing value or default
-            selectedExpenseName: t.item_type === 'expense' ? t.item_name : expenseItemNames.value[0], // Use existing value or default
-            incomeAmount: t.item_type === 'income' ? t.amount : 0, // Set amount for income
-            expenseAmount: t.item_type === 'expense' ? t.amount : 0, // Set amount for expense
-          };
-        });
-      } else {
-        errors.value = response.data.errors || ["予期しないエラーが発生しました。"];
-      }
-    } catch (error) {
-      if (error.response && error.response.data) {
-        errors.value = error.response.data.errors || ["APIからのデータ取得中にエラーが発生しました。"];
-      } else {
-        errors.value = ["APIからのデータ取得中にエラーが発生しました。"];
-      }
+// 全ての入出金情報を取得する
+const fetchAllTransactions = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/v1/transactions/monthly');
+    if (response.data && response.data.success) {
+      monthlyTransactions.value = response.data.transactions;
+      updateFilteredTransactions();
+    } else {
+      errors.value = response.data.errors || ["予期しないエラーが発生しました。"];
     }
+  } catch (error) {
+    errors.value = ["APIからのデータ取得中にエラーが発生しました。"];
+  }
+};
+
+// 選択された年月に基づいてフィルタリング
+const updateFilteredTransactions = () => {
+  const selectedMonthString = `${selectedYear.value}${String(selectedMonth.value).padStart(2, '0')}`;
+  incomeTransactions.value = monthlyTransactions.value.filter(t => t.item_type === 'income' && t.month === selectedMonthString);
+  expenseTransactions.value = monthlyTransactions.value.filter(t => t.item_type === 'expense' && t.month === selectedMonthString);
 };
 
 const fetchTransactionItems = async () => {
@@ -193,16 +178,25 @@ const fetchTransactionItems = async () => {
 
 onMounted(() => {
     fetchTransactionItems();  // コンポーネントがマウントされたときに入出金事項の一覧を取得
-    calculateTotalIncome();
-    calculateTotalExpense();
+    fetchAllTransactions();
 
     // パラメータから年月を取得してセットする
-    const monthParam = route.params.month; // "YYYYMM"の形式を想定しています。
-    selectedYear.value = monthParam.substring(0, 4);
-    selectedMonth.value = parseInt(monthParam.substring(4, 6), 10);
+    let monthParam = route.params.month;
+
+    // 'YYYYMM' 形式であることを確認、そうでない場合は現在の年月を使用
+    if (!monthParam || monthParam.length !== 6) {
+      const now = new Date();
+      const year = now.getFullYear().toString();
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      monthParam = year + month;
+      // エラーがあればここで処理するか、ユーザーに通知する
+    }
+
+  selectedYear.value = monthParam.substring(0, 4);
+  selectedMonth.value = parseInt(monthParam.substring(4, 6), 10);
 
     // 初期データフェッチまたはフィルタリングロジックを実行
-    fetchMonthlyTransactions();
+    fetchTransactionItems();
 });
 
 // 収入と支出の入出金事項を分ける
@@ -212,90 +206,79 @@ const incomeItemNames = computed(() => {
 const expenseItemNames = computed(() => {
     return transactionItems.value.filter(item => item.item_type === 'expense').map(item => item.item_name);
 });
-// 収入トランザクションのみを抽出
-const incomeTransactions = computed(() => {
-  return monthlyTransactions.value.filter(t => t.item_type === 'income');
-});
 
-// 支出トランザクションのみを抽出
-const expenseTransactions = computed(() => {
-  return monthlyTransactions.value.filter(t => t.item_type === 'expense');
-});
+const addIncomeTransaction = () => {
+  incomeTransactions.value.push({
+    selectedIncomeName: '', // 選択された収入名
+    incomeAmount: 0, // 収入額
+    isNew: true,
+  });
+};
+const addExpenseTransaction = () => {
+  expenseTransactions.value.push({
+    selectedExpenseName: '', // 選択された支出名
+    expenseAmount: 0, // 支出額
+    isNew: true,
+  });
+};
 
 // 2. 指定した年月に基づいて入出金情報をフィルタリング
 const filteredTransactions = computed(() => {
   return monthlyTransactions.value.filter(t => t.month === month.value);
 });
 
-// 収入の合計を計算
-const calculateTotalIncome = () => {
-  totalIncome.value = incomeTransactions.value.reduce((acc, transaction) => acc + parseFloat(transaction.incomeAmount || 0), 0);
-};
-
-// 支出の合計を計算
-const calculateTotalExpense = () => {
-  totalExpense.value = expenseTransactions.value.reduce((acc, transaction) => acc + parseFloat(transaction.expenseAmount || 0), 0);
-};
-
-// 収入トランザクションを監視して合計を更新
-watch(incomeTransactions, () => {
-  calculateTotalIncome();
-}, { deep: true });
-
-// 支出トランザクションを監視して合計を更新
-watch(expenseTransactions, () => {
-  calculateTotalExpense();
-}, { deep: true });
-
-// 取引情報をフェッチした後に合計を再計算
-watch(monthlyTransactions, () => {
-  calculateTotalIncome();
-  calculateTotalExpense();
+// 収入の合計を計算する計算プロパティ
+const totalIncome = computed(() => {
+  return incomeTransactions.value.reduce((acc, transaction) => acc + Number(transaction.amount || 0), 0);
 });
 
-// 新しい収入トランザクションを追加するメソッド
-const addIncomeTransaction = () => {
-  incomeTransactions.value.push({
-    selectedIncomeName: incomeItemNames.value[0],
-    incomeAmount: 0
-  });
-};
+// 支出の合計を計算する計算プロパティ
+const totalExpense = computed(() => {
+  return expenseTransactions.value.reduce((acc, transaction) => acc + Number(transaction.amount || 0), 0);
+});
 
-// 新しい支出トランザクションを追加するメソッド
-const addExpenseTransaction = () => {
-  expenseTransactions.value.push({
-    selectedExpenseName: expenseItemNames.value[0],
-    expenseAmount: 0
-  });
-};
+// 収支バランスを計算する計算プロパティ
+const totalBalance = computed(() => {
+  return totalIncome.value - totalExpense.value;
+});
 
 async function onSubmit() {
+  // 選択された年月を 'YYYYMM' 形式で取得
+  const selectedMonthString = `${selectedYear.value}${String(selectedMonth.value).padStart(2, '0')}`;
+
+  // 収入と支出の取引を結合する
+  const transactions = [
+    ...incomeTransactions.value.filter(t => t.isNew).map(t => ({
+      Month: selectedMonthString,
+      ItemName: t.item_name,
+      Amount: t.amount,
+    })),
+    ...expenseTransactions.value.filter(t => t.isNew).map(t => ({
+      Month: selectedMonthString,
+      ItemName: t.item_name,
+      Amount: t.amount,
+    })),
+  ];
+  // APIに送信するデータ
+  const requestData = {
+    transactions,
+  };
+  console.log(requestData)
+
   try {
-    // monthを 'YYYYMM' の形式に変換
-    const monthParam = `${selectedYear.value}${String(selectedMonth.value).padStart(2, '0')}`;
-    const requestData = {
-      month: monthParam,
-      incomeName: incomeName.value,
-      expenseName: expenseName.value,
-      incomeAmount: incomeAmount.value,
-      expenseAmount: expenseAmount.value,
-    };
+    const response = await axios.post('http://localhost:5000/api/v1/transactions/monthly', requestData);
 
-    const response = await axios.post('/api/monthlyTransactionUpdate', requestData);
-
-    if (response.data && response.data.success) {
-      successMessage.value = ["データが正常に保存されました。"];
+    if (response.data && response.data.status === "success") {
+      // 成功メッセージを表示
+      successMessage.value = response.data.message || "データが正常に保存されました。";
       errors.value = [];
     } else {
-      errors.value = response.data.errors || ["予期しないエラーが発生しました。"];
+      errors.value = response.data.message || ["予期しないエラーが発生しました。"];
       successMessage.value = null;
     }
   } catch (error) {
-    if (error.response && error.response.data) {
-      errors.value = error.response.data.errors || ["APIへのデータ送信中にエラーが発生しました。"];
-    } else {
-      errors.value = ["APIへのデータ送信中にエラーが発生しました。"];
-    }
+    // エラーハンドリング
+    errors.value = ["APIへのデータ送信中にエラーが発生しました。"];
     successMessage.value = null;
   }
 }

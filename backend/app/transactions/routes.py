@@ -120,68 +120,71 @@ def get_items():
 
 
 @transactions_blueprint.route('/api/v1/transactions/monthly', methods=['POST'])
-@login_required
-def add_monthly_transaction():
+@jwt_required()
+def add_monthly_transactions():
     if not request.is_json:
         return jsonify({"status": "error", "message": "Missing JSON in request"}), 400
 
-    month = request.json.get('Month')
-    amount = request.json.get('Amount')
-    item_name = request.json.get('ItemName')
+    # JSONリクエストから取引データを取得
+    transactions = request.json.get('transactions')
+    if not transactions:
+        return jsonify({"status": "error", "message": "Missing transactions data"}), 400
+    
+    user_id = get_jwt_identity()
+    new_records = []
 
-    if not month or not amount or not item_name:
-        return jsonify({"status": "error", "message": "Missing required parameters (Month, Amount, ItemName)"}), 400
+    for transaction in transactions:
+        month = transaction.get('Month')
+        amount = transaction.get('Amount')
+        item_name = transaction.get('ItemName')
 
-    user_id = current_user.id
-    item = IncomeExpenseItem.query.filter_by(item_name=item_name, user_id=user_id).first()
+        if not all([month, amount, item_name]):
+            continue  # いずれかのキーが不足している場合はスキップ
 
-    if not item:
-        return jsonify({"status": "error", "message": "Item not found"}), 404
+        item = IncomeExpenseItem.query.filter_by(item_name=item_name, user_id=user_id).first()
+        if not item:
+            continue  # アイテムが見つからない場合はスキップ
 
-    new_record = MonthlyRecord(
-        user_id=user_id,
-        income_expense_item_id=item.id,
-        month=month,
-        amount=amount
-    )
+        new_record = MonthlyRecord(
+            user_id=user_id,
+            income_expense_item_id=item.id,
+            month=month,
+            amount=amount
+        )
+        new_records.append(new_record)
 
-    db.session.add(new_record)
+    db.session.add_all(new_records)
     db.session.commit()
 
-    return jsonify({"status": "success", "message": "Monthly transaction added successfully!"}), 201
+    return jsonify({"status": "success", "message": "Monthly transactions added successfully!"}), 201
 
 
 @transactions_blueprint.route('/api/v1/transactions/monthly/<int:transaction_id>', methods=['PUT'])
-@login_required
+@jwt_required()
 def update_monthly_transaction(transaction_id):
-    # 取引をDBから取得
-    record = MonthlyRecord.query.filter_by(id=transaction_id, user_id=current_user.id).first()
+    user_id = get_jwt_identity()  # JWTからユーザーIDを取得
+    record = MonthlyRecord.query.filter_by(id=transaction_id, user_id=user_id).first()
 
     if not record:
         return jsonify({"status": "error", "message": "Transaction not found"}), 404
 
-    # リクエストからデータを取得
     data = request.get_json()
-    month = data.get("Month")
-    amount = data.get("Amount")
-    item_name = data.get("ItemName")
+    month = data.get("month")
+    amount = data.get("amount")
+    item_name = data.get("item_name")
 
     if item_name:
-        item = IncomeExpenseItem.query.filter_by(item_name=item_name, user_id=current_user.id).first()
+        item = IncomeExpenseItem.query.filter_by(item_name=item_name, user_id=user_id).first()
         if not item:
-            return jsonify({"status": "error", "message": "Item not found"}), 400
+            return jsonify({"status": "error", "message": "Item not found"}), 404
         record.income_expense_item_id = item.id
 
-    # 月、金額、アイテム名を更新
     if month:
         record.month = month
     if amount:
         record.amount = amount
 
-    # DBに変更をコミット
-    db.session.commit()
-
-    return jsonify({"status": "success", "message": "Transaction updated successfully"}), 200
+    db.session.commit
 
 
 @transactions_blueprint.route('/api/v1/transactions/monthly', methods=['GET'])
