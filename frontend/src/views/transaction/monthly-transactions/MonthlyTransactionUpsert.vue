@@ -14,11 +14,11 @@
         <label class="pr-2">月</label>
       </div>
     </div>
-    <div class="flex justify-between -mx-2">
+    <div class="flex justify-between -mx-2 transaction-sections">
       <!-- Income Section -->
-      <div class="w-1/2 px-2">
+      <div class="w-full px-2 mb-4 mt-4">
       <label>{{ t('transaction.income') }}</label>
-        <div v-for="incomeTransaction in incomeTransactions" :key="incomeTransaction.id" class="mb-4 flex">
+        <div v-for="incomeTransaction in incomeTransactions" :key="incomeTransaction.id" class="mb-2 flex">
           <div class="w-1/2 pr-1">
             <select v-model="incomeTransaction.item_name" class="border rounded p-1 w-full">
               <option v-for="itemName in incomeItemNames" :key="itemName" :value="itemName">
@@ -36,12 +36,12 @@
             />
           </div>
         </div>
-        <button type="button" @click="addIncomeTransaction" class="mt-2 p-2 bg-blue-500 text-white rounded">収入を追加</button>
+        <button type="button" @click="addIncomeTransaction" class="p-2 bg-blue-500 text-white rounded">収入を追加</button>
       </div>
       <!-- Expense Section -->
-      <div class="w-1/2 px-2">
+      <div class="w-full px-2 mt-4">
       <label>{{ t('transaction.expense') }}</label>
-        <div v-for="expenseTransaction in expenseTransactions" :key="expenseTransaction.id" class="mb-4 flex">
+        <div v-for="expenseTransaction in expenseTransactions" :key="expenseTransaction.id" class="mb-2 flex">
           <div class="w-1/2 pr-1">
             <select v-model="expenseTransaction.item_name" class="border rounded p-1 w-full">
               <option v-for="itemName in expenseItemNames" :key="itemName" :value="itemName">
@@ -59,19 +59,46 @@
             />
           </div>
         </div>
-        <button type="button" @click="addExpenseTransaction" class="mt-2 p-2 bg-red-500 text-white rounded">支出を追加</button>
+        <button type="button" @click="addExpenseTransaction" class="p-2 bg-red-500 text-white rounded">支出を追加</button>
       </div>
     </div>
-    <div class="mt-4">
-      <label>{{ t('transaction.summary') }}</label>
-      <div class="bg-gray-100 p-4 rounded">
-        <p>{{ t('transaction.totalIncome') }}: {{ totalIncome }}</p>
-        <p>{{ t('transaction.totalExpense') }}: {{ totalExpense }}</p>
-        <p>{{ t('transaction.balance') }}: {{ totalBalance }}</p>
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-blue-100 p-4 rounded flex items-center justify-between">
+        <div>
+          <h3 class="text-blue-500 font-semibold">{{ t('transaction.totalIncome') }}</h3>
+          <p class="text-lg font-bold text-blue-800">{{ totalIncome | currency }}</p>
+        </div>
+        <div class="text-blue-500">
+          <!-- 任意のアイコンや画像を挿入 -->
+          <span class="material-icons">arrow_upward</span>
+        </div>
+      </div>
+      <div class="bg-red-100 p-4 rounded flex items-center justify-between">
+        <div>
+          <h3 class="text-red-500 font-semibold">{{ t('transaction.totalExpense') }}</h3>
+          <p class="text-lg font-bold text-red-800">{{ totalExpense | currency }}</p>
+        </div>
+        <div class="text-red-500">
+          <!-- 任意のアイコンや画像を挿入 -->
+          <span class="material-icons">arrow_downward</span>
+        </div>
+      </div>
+      <div :class="totalBalanceColor" class="p-4 rounded flex items-center justify-between">
+        <div>
+          <h3 :class="totalBalanceTextColor" class="font-semibold">{{ t('transaction.balance') }}</h3>
+          <p class="text-lg font-bold" :class="totalBalanceTextColor">{{ totalBalance | currency }}</p>
+        </div>
+        <div :class="totalBalanceTextColor">
+          <!-- 任意のアイコンや画像を挿入 -->
+          <span class="material-icons" v-if="totalBalance >= 0">trending_up</span>
+          <span class="material-icons" v-else>trending_down</span>
+        </div>
       </div>
     </div>
     <div class="flex justify-center mt-4">
-      <va-button class="my-0" @click="onSubmit">{{ t('transaction.save') }}</va-button>
+      <va-button class="px-6 py-3 bg-blue-500 text-white text-lg rounded-lg shadow-lg hover:bg-blue-600 transition-colors duration-300 ease-in-out" @click="onSubmit">
+        {{ t('transaction.save') }}
+      </va-button>
     </div>
     <!-- Success Messages Display -->
     <div v-if="successMessage">
@@ -282,4 +309,20 @@ async function onSubmit() {
     successMessage.value = null;
   }
 }
+const totalBalanceColor = computed(() => ({
+  'bg-green-100': totalBalance.value >= 0,
+  'bg-red-100': totalBalance.value < 0,
+}));
+
+const totalBalanceTextColor = computed(() => ({
+  'text-green-800': totalBalance.value >= 0,
+  'text-red-800': totalBalance.value < 0,
+}));
 </script>
+<style>
+@media (max-width: 768px) {
+  .transaction-sections {
+    flex-direction: column;
+  }
+}
+</style>
