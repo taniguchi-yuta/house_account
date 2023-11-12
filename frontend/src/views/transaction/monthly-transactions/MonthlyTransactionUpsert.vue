@@ -18,7 +18,7 @@
       <!-- Income Section -->
       <div class="w-full px-2 mb-4 mt-4">
       <label>{{ t('transaction.income') }}</label>
-        <div v-for="incomeTransaction in incomeTransactions" :key="incomeTransaction.id" class="mb-2 flex">
+        <div v-for="(incomeTransaction, index) in incomeTransactions" :key="incomeTransaction.id" class="mb-2 flex">
           <div class="w-1/2 pr-1">
             <select v-model="incomeTransaction.item_name" class="border rounded p-1 w-full">
               <option v-for="itemName in incomeItemNames" :key="itemName" :value="itemName">
@@ -35,13 +35,14 @@
               :error-messages="amountErrors"
             />
           </div>
+          <button type="button" @click="removeIncomeTransaction(index)">削除</button>
         </div>
         <button type="button" @click="addIncomeTransaction" class="p-2 bg-blue-500 text-white rounded">収入を追加</button>
       </div>
       <!-- Expense Section -->
       <div class="w-full px-2 mt-4">
       <label>{{ t('transaction.expense') }}</label>
-        <div v-for="expenseTransaction in expenseTransactions" :key="expenseTransaction.id" class="mb-2 flex">
+        <div v-for="(expenseTransaction, index) in expenseTransactions" :key="expenseTransaction.id" class="mb-2 flex">
           <div class="w-1/2 pr-1">
             <select v-model="expenseTransaction.item_name" class="border rounded p-1 w-full">
               <option v-for="itemName in expenseItemNames" :key="itemName" :value="itemName">
@@ -58,6 +59,7 @@
               :error-messages="amountErrors"
             />
           </div>
+          <button type="button" @click="removeExpenseTransaction(index)">削除</button>
         </div>
         <button type="button" @click="addExpenseTransaction" class="p-2 bg-red-500 text-white rounded">支出を追加</button>
       </div>
@@ -318,6 +320,33 @@ const totalBalanceTextColor = computed(() => ({
   'text-green-800': totalBalance.value >= 0,
   'text-red-800': totalBalance.value < 0,
 }));
+
+const removeIncomeTransaction = async (index) => {
+  const transaction = incomeTransactions.value[index];
+  console.log(transaction)
+  if (transaction && transaction.id) {
+    try {
+      await axios.delete(`http://localhost:5000/api/v1/transactions/monthly/${transaction.id}`);
+      incomeTransactions.value.splice(index, 1);
+      // 他のUI更新や成功メッセージの表示など
+    } catch (error) {
+      // エラーハンドリング
+    }
+  }
+};
+
+const removeExpenseTransaction = async (index) => {
+  const transaction = expenseTransactions.value[index];
+  if (transaction && transaction.id) {
+    try {
+      await axios.delete(`http://localhost:5000/api/v1/transactions/monthly/${transaction.id}`);
+      expenseTransactions.value.splice(index, 1);
+      // 他のUI更新や成功メッセージの表示など
+    } catch (error) {
+      // エラーハンドリング
+    }
+  }
+};
 </script>
 <style>
 @media (max-width: 768px) {

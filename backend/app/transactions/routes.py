@@ -220,3 +220,23 @@ def get_monthly_transactions():
             "success": False,
             "errors": [str(e)]
         }), 500
+
+@transactions_blueprint.route('/api/v1/transactions/monthly/<int:transaction_id>', methods=['DELETE'])
+@jwt_required()
+def delete_monthly_transaction(transaction_id):
+    user_id = get_jwt_identity()  # JWTからユーザーIDを取得
+
+    # 指定されたIDとユーザーIDに基づいてトランザクションを検索
+    transaction = MonthlyRecord.query.filter_by(id=transaction_id, user_id=user_id).first()
+
+    # トランザクションが見つからない場合はエラーメッセージを返す
+    if not transaction:
+        return jsonify({"status": "error", "message": "Transaction not found"}), 404
+
+    try:
+        db.session.delete(transaction)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Transaction deleted successfully!"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": "An error occurred while deleting the transaction: " + str(e)}), 500
