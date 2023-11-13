@@ -35,7 +35,9 @@
               :error-messages="amountErrors"
             />
           </div>
-          <button type="button" @click="removeIncomeTransaction(index)">削除</button>
+          <button type="button" @click="removeIncomeTransaction(index)" class="icon-button">
+            <font-awesome-icon :icon="['fas', 'trash']" />
+          </button>
         </div>
         <button type="button" @click="addIncomeTransaction" class="p-2 bg-blue-500 text-white rounded">収入を追加</button>
       </div>
@@ -59,7 +61,9 @@
               :error-messages="amountErrors"
             />
           </div>
-          <button type="button" @click="removeExpenseTransaction(index)">削除</button>
+          <button type="button" @click="removeExpenseTransaction(index)" class="icon-button">
+            <font-awesome-icon :icon="['fas', 'trash']" />
+          </button>
         </div>
         <button type="button" @click="addExpenseTransaction" class="p-2 bg-red-500 text-white rounded">支出を追加</button>
       </div>

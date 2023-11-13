@@ -7,8 +7,16 @@ import stores from './stores'
 import router from './router'
 import vuesticGlobalConfig from './services/vuestic-ui/global-config'
 import App from './App.vue'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faTrash)
 
 const app = createApp(App)
+
+// FontAwesomeIconコンポーネントをグローバルコンポーネントとして登録
+app.component('font-awesome-icon', FontAwesomeIcon)
 
 app.use(stores)
 app.use(router)
