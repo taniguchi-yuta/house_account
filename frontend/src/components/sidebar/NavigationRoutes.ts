@@ -19,6 +19,39 @@ export default {
       },
     },
     {
+      name: 'user-update',
+      displayName: 'menu.userUpdate',  // i18nを使用している場合、適切なキーを指定してください
+      meta: {
+        icon: 'vuestic-iconset-user',  // アイコンを適切に選んでください
+      },
+    },
+    {
+      name: 'transactions',
+      displayName: 'menu.transactions',
+      meta: {
+        icon: 'vuestic-iconset-extras',
+      },
+      disabled: true,
+      children: [
+        {
+          name: 'transaction-item-list',
+          displayName: 'menu.transactionItemList',
+        },
+        {
+          name: 'transaction-item-upsert',
+          displayName: 'menu.transactionItemCreate',
+        },
+        {
+          name: 'monthly-transaction-list',
+          displayName: 'menu.monthlyTransactionList',
+        },
+        {
+          name: 'monthly-transaction-upsert',
+          displayName: 'menu.monthlyTransactionCreate',
+        },
+      ],
+    },
+    {
       name: 'statistics',
       displayName: 'menu.statistics',
       meta: {
@@ -216,43 +249,6 @@ export default {
         {
           name: 'faq',
           displayName: 'menu.faq',
-        },
-      ],
-    },
-    {
-      name: 'user-update',
-      displayName: 'menu.userUpdate',  // i18nを使用している場合、適切なキーを指定してください
-      meta: {
-        icon: 'vuestic-iconset-user',  // アイコンを適切に選んでください
-      },
-    },
-    {
-      name: 'transactions',
-      displayName: 'menu.transactions',
-      meta: {
-        icon: 'vuestic-iconset-extras',
-      },
-      disabled: true,
-      children: [
-        {
-          name: 'transaction-item-list',
-          displayName: 'menu.transactionItemList',
-        },
-        {
-          name: 'transaction-item-upsert',
-          displayName: 'menu.transactionItemCreate',
-        },
-        {
-          name: 'monthly-transaction-list',
-          displayName: 'menu.monthlyTransactionList',
-        },
-        {
-          name: 'monthly-transaction-upsert',
-          displayName: 'menu.monthlyTransactionCreate',
-        },
-        {
-          name: 'transaction-list',
-          displayName: 'menu.transactionList',
         },
       ],
     },

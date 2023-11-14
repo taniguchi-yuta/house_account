@@ -159,34 +159,6 @@ def add_monthly_transactions():
     return jsonify({"status": "success", "message": "Monthly transactions added successfully!"}), 201
 
 
-@transactions_blueprint.route('/api/v1/transactions/monthly/<int:transaction_id>', methods=['PUT'])
-@jwt_required()
-def update_monthly_transaction(transaction_id):
-    user_id = get_jwt_identity()  # JWTからユーザーIDを取得
-    record = MonthlyRecord.query.filter_by(id=transaction_id, user_id=user_id).first()
-
-    if not record:
-        return jsonify({"status": "error", "message": "Transaction not found"}), 404
-
-    data = request.get_json()
-    month = data.get("month")
-    amount = data.get("amount")
-    item_name = data.get("item_name")
-
-    if item_name:
-        item = IncomeExpenseItem.query.filter_by(item_name=item_name, user_id=user_id).first()
-        if not item:
-            return jsonify({"status": "error", "message": "Item not found"}), 404
-        record.income_expense_item_id = item.id
-
-    if month:
-        record.month = month
-    if amount:
-        record.amount = amount
-
-    db.session.commit
-
-
 @transactions_blueprint.route('/api/v1/transactions/monthly', methods=['GET'])
 @jwt_required()  # JWTトークンが有効かチェック
 def get_monthly_transactions():
