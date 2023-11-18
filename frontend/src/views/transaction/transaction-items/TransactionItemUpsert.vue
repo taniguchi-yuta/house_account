@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="onsubmit">
+  <form @submit.prevent="onSubmit">
     <!-- ItemType Input -->
     <va-select
       v-model="itemType"
@@ -20,6 +20,18 @@
       :error-messages="itemNameErrors"
     />
 
+    <!-- TransactionDay Input -->
+    <va-input
+      v-model="transactionDay"
+      class="mb-4"
+      type="number"
+      :label="t('transaction.transactionDay')"
+      :error="!!transactionDayErrors.length"
+      :error-messages="transactionDayErrors"
+      min="1"
+      max="31"
+    />
+
     <!-- Success Message -->
     <div v-if="successMessage" class="success-message">
       {{ successMessage }}
@@ -32,7 +44,7 @@
 
     <!-- Submit Button -->
     <div class="flex justify-center mt-4">
-      <va-button class="my-0" @click="onsubmit">
+      <va-button class="my-0" @click="onSubmit">
         {{ isUpdateMode ? t('transaction.update') : t('transaction.register') }}
       </va-button>
     </div>
@@ -51,8 +63,10 @@ const route = useRoute();
 
 const itemType = ref('')
 const itemName = ref('')
+const transactionDay = ref('')
 const itemTypeErrors = ref<string[]>([])
 const itemNameErrors = ref<string[]>([])
+const transactionDayErrors = ref<string[]>([])
 const isUpdateMode = ref(!!route.params.id)  // Check if itemID exists to set update mode
 const successMessage = ref('')
 const errorMessage = ref('')
@@ -71,6 +85,7 @@ async function fetchData() {
     if (response.data && response.data.status === 'success') {
       itemType.value = response.data.item.item_type
       itemName.value = response.data.item.item_name
+      transactionDay.value = response.data.item.transaction_day
     }
   } catch (error) {
     console.error('Failed to fetch the item data', error)
@@ -86,19 +101,26 @@ const formReady = computed(() => {
 function validateForm(): boolean {
   itemTypeErrors.value = itemType.value ? [] : [t('transaction.itemTypeRequired')]
   itemNameErrors.value = itemName.value ? [] : [t('transaction.itemNameRequired')]
-  return !(itemTypeErrors.value.length || itemNameErrors.value.length)
+  // 日付バリデーション
+  const transactionDayNumber = parseInt(transactionDay.value, 10);
+  if (isNaN(transactionDayNumber) || transactionDayNumber < 1 || transactionDayNumber > 31) {
+    transactionDayErrors.value = [t('transaction.invalidTransactionDay')]
+  } else {
+    transactionDayErrors.value = []
+  }
+  return !(itemTypeErrors.value.length || itemNameErrors.value.length || transactionDayErrors.value.length)
 }
 
-async function onsubmit() {
+async function onSubmit() {
   if (!validateForm()) return
 
   try {
     let response
     const payload = {
       ItemType: itemType.value.value,
-      ItemName: itemName.value
+      ItemName: itemName.value,
+      TransactionDay: parseInt(transactionDay.value)
     }
-    console.log(itemType.value)
     if (isUpdateMode.value) {
       response = await axios.put(`http://localhost:5000/api/v1/transactions/item/${itemID.value}`, payload)
     } else {

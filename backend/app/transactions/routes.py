@@ -26,6 +26,7 @@ def get_transaction_item(item_id):
         "id": item.id,
         "item_name": item.item_name,
         "item_type": item.item_type,
+        "transaction_day": item.transaction_day,
         "created_at": item.created_at.strftime('%Y-%m-%d %H:%M:%S'),  # assuming created_at is a datetime field
         "updated_at": item.updated_at.strftime('%Y-%m-%d %H:%M:%S')   # assuming updated_at is a datetime field
     }
@@ -41,15 +42,23 @@ def add_item():
 
     item_type = request.json.get('ItemType', None)
     item_name = request.json.get('ItemName', None)
+    transaction_day = request.json.get('TransactionDay', None)
 
     if not item_type or item_type not in ['income', 'expense']:
         return jsonify({"status": "error", "message": "Invalid or missing ItemType parameter"}), 400
     if not item_name:
         return jsonify({"status": "error", "message": "Missing ItemName parameter"}), 400
+    if transaction_day and (transaction_day < 1 or transaction_day > 31):
+        return jsonify({"status": "error", "message": "Invalid TransactionDay parameter"}), 400
 
     user_id = get_jwt_identity()
 
-    new_item = IncomeExpenseItem(user_id=user_id, item_name=item_name, item_type=item_type)
+    new_item = IncomeExpenseItem(
+        user_id=user_id, 
+        item_name=item_name, 
+        item_type=item_type,
+        transaction_day=transaction_day
+    )
     
     new_item.created_by = user_id
     new_item.updated_by = user_id
@@ -70,6 +79,7 @@ def update_transaction_item(item_id):
 
     item_type = request.json.get('ItemType')
     item_name = request.json.get('ItemName')
+    transaction_day = request.json.get('TransactionDay')
 
     if not any([item_type, item_name]):
         return jsonify({"status": "error", "message": "Provide at least one parameter to update (ItemType or ItemName)"}), 400
@@ -81,14 +91,17 @@ def update_transaction_item(item_id):
         return jsonify({"status": "error", "message": "Item not found"}), 404
     if item.user_id != user_id:
         return jsonify({"status": "error", "message": "You are not authorized to update this item"}), 403
+    if transaction_day and (transaction_day < 1 or transaction_day > 31):
+        return jsonify({"status": "error", "message": "Invalid TransactionDay parameter"}), 400
 
     if item_type:
         if item_type not in ['income', 'expense']:
             return jsonify({"status": "error", "message": "Invalid ItemType parameter"}), 400
         item.item_type = item_type
-
     if item_name:
         item.item_name = item_name
+    if transaction_day is not None:  # transaction_dayが指定されている場合のみ更新
+        item.transaction_day = transaction_day
 
     item.updated_by = user_id  # Typo fix: update_by -> updated_by
     try:
@@ -112,6 +125,7 @@ def get_items():
         "id": item.id,
         "item_name": item.item_name,
         "item_type": item.item_type,
+        "transaction_day": item.transaction_day,
         "created_at": item.created_at.strftime('%Y-%m-%d %H:%M:%S'),  # assuming created_at is a datetime field
         "updated_at": item.updated_at.strftime('%Y-%m-%d %H:%M:%S')   # assuming updated_at is a datetime field
     } for item in items]

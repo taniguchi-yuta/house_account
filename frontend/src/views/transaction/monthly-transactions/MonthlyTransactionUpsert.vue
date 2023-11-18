@@ -130,16 +130,11 @@ const { t } = useI18n();
 const route = useRoute();
 
 const month = ref('');
-const incomeName = ref('');
-const expenseName = ref('');
 const incomeAmount = ref(0);
 const expenseAmount = ref(0);
-const monthlyTransaction = ref(null);
 const errors = ref([]);
 const successMessage = ref(null);
 
-const monthErrors = ref([]);
-const itemNameErrors = ref([]);
 const amountErrors = ref([]);
 
 const currentDate = new Date();
@@ -255,11 +250,6 @@ const addExpenseTransaction = () => {
   });
 };
 
-// 2. 指定した年月に基づいて入出金情報をフィルタリング
-const filteredTransactions = computed(() => {
-  return monthlyTransactions.value.filter(t => t.month === month.value);
-});
-
 // 収入の合計を計算する計算プロパティ
 const totalIncome = computed(() => {
   return incomeTransactions.value.reduce((acc, transaction) => acc + Number(transaction.amount || 0), 0);
@@ -315,11 +305,11 @@ async function onSubmit() {
     successMessage.value = null;
   }
 }
+
 const totalBalanceColor = computed(() => ({
   'bg-green-100': totalBalance.value >= 0,
   'bg-red-100': totalBalance.value < 0,
 }));
-
 const totalBalanceTextColor = computed(() => ({
   'text-green-800': totalBalance.value >= 0,
   'text-red-800': totalBalance.value < 0,
@@ -335,6 +325,7 @@ const removeIncomeTransaction = async (index) => {
       // 他のUI更新や成功メッセージの表示など
     } catch (error) {
       // エラーハンドリング
+      errors.value = ["APIへのデータ送信中にエラーが発生しました。"];
     }
   }
 };
@@ -348,6 +339,7 @@ const removeExpenseTransaction = async (index) => {
       // 他のUI更新や成功メッセージの表示など
     } catch (error) {
       // エラーハンドリング
+      errors.value = ["APIへのデータ送信中にエラーが発生しました。"];
     }
   }
 };
