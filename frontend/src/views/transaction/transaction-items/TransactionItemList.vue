@@ -18,7 +18,7 @@
         <tr v-for="item in items" :key="item.id" @click="navigateToDetail(item.id)">
           <td>{{ item.item_type }}</td>
           <td>{{ item.item_name }}</td>
-          <td>{{ item.transaction_day }}</td>
+          <td>{{ item.transaction_day }}日</td>
         </tr>
       </tbody>
     </table>

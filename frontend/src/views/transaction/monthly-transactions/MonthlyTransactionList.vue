@@ -17,10 +17,12 @@
       </thead>
       <tbody>
         <tr v-for="(summary, month) in monthlySummaries" :key="month" @click="navigateToDetail(month)">
-          <td>{{ month }}</td>
-          <td>{{ summary.totalIncome }}</td>
-          <td>{{ summary.totalExpense }}</td>
-          <td>{{ summary.balance }}</td>
+          <td>{{ formatMonth(month) }}</td>
+          <td :class="'income'">{{ formatCurrency(summary.totalIncome) }}</td>
+          <td :class="'expense'">{{ formatCurrency(summary.totalExpense) }}</td>
+          <td :class="summary.balance >= 0 ? 'balance-positive' : 'balance-negative'">
+            {{ formatCurrency(summary.balance) }}
+          </td>
         </tr>
       </tbody>
     </table>
@@ -94,6 +96,17 @@ onMounted(async () => {
 function navigateToDetail(month) {
   router.push({ name: 'monthly-transaction-upsert', params: { month } });
 }
+
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(value);
+};
+
+const formatMonth = (monthString) => {
+  const year = monthString.substring(0, 4);
+  const month = monthString.substring(4, 6);
+  return `${year}年${month}月`;
+};
+
 </script>
 
 <style scoped>
@@ -111,5 +124,20 @@ function navigateToDetail(month) {
 .table tr:hover {
   background-color: #f5f5f5;
   cursor: pointer;
+}
+.table .income {
+  color: #34a853; /* 緑色 */
+}
+
+.table .expense {
+  color: #d32f2f; /* 赤色 */
+}
+
+.table .balance-positive {
+  color: #34a853; /* 緑色 */
+}
+
+.table .balance-negative {
+  color: #d32f2f; /* 赤色 */
 }
 </style>

@@ -72,7 +72,7 @@
       <div class="bg-blue-100 p-4 rounded flex items-center justify-between">
         <div>
           <h3 class="text-blue-500 font-semibold">{{ t('transaction.totalIncome') }}</h3>
-          <p class="text-lg font-bold text-blue-800">{{ totalIncome | currency }}</p>
+          <p class="text-lg font-bold text-blue-800">{{ formatCurrency(totalIncome) }}</p>
         </div>
         <div class="text-blue-500">
           <!-- 任意のアイコンや画像を挿入 -->
@@ -82,7 +82,7 @@
       <div class="bg-red-100 p-4 rounded flex items-center justify-between">
         <div>
           <h3 class="text-red-500 font-semibold">{{ t('transaction.totalExpense') }}</h3>
-          <p class="text-lg font-bold text-red-800">{{ totalExpense | currency }}</p>
+          <p class="text-lg font-bold text-red-800">{{ formatCurrency(totalExpense) }}</p>
         </div>
         <div class="text-red-500">
           <!-- 任意のアイコンや画像を挿入 -->
@@ -92,7 +92,7 @@
       <div :class="totalBalanceColor" class="p-4 rounded flex items-center justify-between">
         <div>
           <h3 :class="totalBalanceTextColor" class="font-semibold">{{ t('transaction.balance') }}</h3>
-          <p class="text-lg font-bold" :class="totalBalanceTextColor">{{ totalBalance | currency }}</p>
+          <p class="text-lg font-bold" :class="totalBalanceTextColor">{{ formatCurrency(totalBalance) }}</p>
         </div>
         <div :class="totalBalanceTextColor">
           <!-- 任意のアイコンや画像を挿入 -->
@@ -187,8 +187,15 @@ const fetchAllTransactions = async () => {
 // 選択された年月に基づいてフィルタリング
 const updateFilteredTransactions = () => {
   const selectedMonthString = `${selectedYear.value}${String(selectedMonth.value).padStart(2, '0')}`;
-  incomeTransactions.value = monthlyTransactions.value.filter(t => t.item_type === 'income' && t.month === selectedMonthString);
-  expenseTransactions.value = monthlyTransactions.value.filter(t => t.item_type === 'expense' && t.month === selectedMonthString);
+  const filteredTransactions = monthlyTransactions.value.filter(t => t.month === selectedMonthString);
+  if (filteredTransactions.length === 0) {
+    // 既存の取引記録がない場合、全ての入出金事項を追加する
+    addAllExistingItemsAsTransactions();
+  } else {
+    // 既存の取引記録がある場合、それらを利用する
+    incomeTransactions.value = filteredTransactions.filter(t => t.item_type === 'income');
+    expenseTransactions.value = filteredTransactions.filter(t => t.item_type === 'expense');
+  }
 };
 
 const fetchTransactionItems = async () => {
@@ -204,9 +211,9 @@ const fetchTransactionItems = async () => {
     }
 };
 
-onMounted(() => {
-    fetchTransactionItems();  // コンポーネントがマウントされたときに入出金事項の一覧を取得
-    fetchAllTransactions();
+onMounted(async() => {
+    await fetchTransactionItems();  // コンポーネントがマウントされたときに入出金事項の一覧を取得
+    await fetchAllTransactions();
 
     // パラメータから年月を取得してセットする
     let monthParam = route.params.month;
@@ -343,6 +350,21 @@ const removeExpenseTransaction = async (index) => {
     }
   }
 };
+
+const addAllExistingItemsAsTransactions = () => {
+  incomeTransactions.value = transactionItems.value
+    .filter(item => item.item_type === 'income')
+    .map(item => ({ item_name: item.item_name, amount: 0 }));
+
+  expenseTransactions.value = transactionItems.value
+    .filter(item => item.item_type === 'expense')
+    .map(item => ({ item_name: item.item_name, amount: 0 }));
+};
+
+function formatCurrency(value) {
+  // 数値を通貨形式（例：1,000）にフォーマット
+  return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(value);
+}
 </script>
 <style>
 @media (max-width: 768px) {
