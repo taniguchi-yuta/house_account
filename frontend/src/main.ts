@@ -10,10 +10,17 @@ import App from './App.vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import axios from 'axios'
 
 library.add(faTrash, faPlus)
 
 const app = createApp(App)
+
+// ローカルストレージからトークンを読み込む
+const token = localStorage.getItem('Authorization');
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
 
 // FontAwesomeIconコンポーネントをグローバルコンポーネントとして登録
 app.component('font-awesome-icon', FontAwesomeIcon)
