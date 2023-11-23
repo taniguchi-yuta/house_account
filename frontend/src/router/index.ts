@@ -266,4 +266,33 @@ const router = createRouter({
   routes,
 })
 
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('Authorization');
+  if (token) {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const expiry = payload.exp;
+    const now = Date.now() / 1000;
+
+    if (expiry < now) {
+      // トークンの有効期限が切れている場合
+      localStorage.removeItem('Authorization');
+      if (to.name !== 'login') {
+        next({ name: 'login' }); // ログインページにリダイレクト
+      } else {
+        next(); // 既にログインページにいる場合はそのまま
+      }
+    } else {
+      // トークンが有効な場合
+      next(); // ナビゲーションを続行
+    }
+  } else {
+    // トークンが存在しない場合
+    if (to.name !== 'login') {
+      next({ name: 'login' }); // ログインページにリダイレクト
+    } else {
+      next(); // 既にログインページにいる場合はそのまま
+    }
+  }
+});
+
 export default router
