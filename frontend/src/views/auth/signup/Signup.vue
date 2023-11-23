@@ -90,7 +90,7 @@
         // 保存したトークンを使用して全てのリクエストにAuthorizationヘッダーを設定
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + token.value;
         localStorage.setItem('Authorization', token.value);  // tokenをlocalStorageに保存
-        router.push({ name: 'dashboard' });
+        router.push({ name: 'monthly-transaction-list' });
       } else {
         throw new Error(response.data.message);
       }

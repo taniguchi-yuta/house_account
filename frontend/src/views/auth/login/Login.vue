@@ -70,7 +70,7 @@
         if (keepLoggedIn.value) {
           localStorage.setItem('Authorization', token.value); // tokenをlocalStorageに保存
         }
-        router.push({ name: 'dashboard' });
+        router.push({ name: 'monthly-transaction-list' });
       } else {
         throw new Error(response.data.message);
       }

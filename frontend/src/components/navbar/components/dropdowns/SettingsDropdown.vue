@@ -6,7 +6,7 @@
 
     <va-dropdown-content class="settings-dropdown__content pl-8 pr-8 pt-2 pb-2">
       <div class="settings-dropdown__content-label mt-2 mb-4" :style="{ color: colors.primary }">
-        {{ t('dashboard.navigationLayout') }}
+        <!-- {{ t('dashboard.navigationLayout') }} -->
       </div>
       <va-button-toggle
         v-model="isTopBarProxy"
