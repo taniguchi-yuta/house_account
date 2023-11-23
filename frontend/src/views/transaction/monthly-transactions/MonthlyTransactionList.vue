@@ -10,19 +10,18 @@
       <thead>
         <tr>
           <th>{{ t('monthlyRecord.month') }}</th>
-          <th>{{ t('monthlyRecord.totalIncome') }}</th>
-          <th>{{ t('monthlyRecord.totalExpense') }}</th>
+          <th class="desktop-only">{{ t('monthlyRecord.totalIncome') }}</th>
+          <th class="desktop-only">{{ t('monthlyRecord.totalExpense') }}</th>
           <th>{{ t('monthlyRecord.balance') }}</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(summary, month) in monthlySummaries" :key="month" @click="navigateToDetail(month)">
+        <tr v-for="(summary, month) in monthlySummaries" :key="month" @click="navigateToDetail(month)"
+            :class="summary.balance >= 0 ? 'balance-positive' : 'balance-negative'">
           <td>{{ formatMonth(month) }}</td>
-          <td :class="'income'">{{ formatCurrency(summary.totalIncome) }}</td>
-          <td :class="'expense'">{{ formatCurrency(summary.totalExpense) }}</td>
-          <td :class="summary.balance >= 0 ? 'balance-positive' : 'balance-negative'">
-            {{ formatCurrency(summary.balance) }}
-          </td>
+          <td class="desktop-only" :class="'income'">{{ formatCurrency(summary.totalIncome) }}</td>
+          <td class="desktop-only" :class="'expense'">{{ formatCurrency(summary.totalExpense) }}</td>
+          <td>{{ formatCurrency(summary.balance) }}</td>
         </tr>
       </tbody>
     </table>
@@ -136,8 +135,19 @@ const formatMonth = (monthString) => {
 .table .balance-positive {
   color: #34a853; /* 緑色 */
 }
-
+.table tr.balance-positive {
+  background-color: #eaffea; /* プラスの収支の行の背景色（薄い緑色） */
+}
 .table .balance-negative {
   color: #d32f2f; /* 赤色 */
+}
+.table tr.balance-negative {
+  background-color: #ffebee; /* マイナスの収支の行の背景色（薄い赤色） */
+}
+/* スマートフォン画面のスタイル */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
 }
 </style>

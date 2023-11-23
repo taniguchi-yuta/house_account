@@ -591,8 +591,8 @@
     "grow": "Tabs Grow"
   },
   "transaction": {
-    "itemType": "Transaction Type",
-    "itemName": "Transaction Item Name",
+    "itemType": "Item Type",
+    "itemName": "Item Name",
     "register": "Register",
     "update": "Update",
     "month": "Month",
@@ -601,6 +601,16 @@
     "successfulOperation": "Success",
     "failedOperation": "Fail",
     "income": "income",
-    "expense": "expense"
+    "expense": "expense",
+    "transactionDay": "Trans. Day",
+    "totalIncome": "Total Income",
+    "totalExpense": "Total Expense",
+    "balance": "Balance"
+  },
+  "monthlyRecord": {
+    "month": "Month",
+    "totalIncome": "Income",
+    "totalExpense": "Expense",
+    "balance": "Balance"
   }
 }

@@ -39,7 +39,9 @@
             <font-awesome-icon :icon="['fas', 'trash']" />
           </button>
         </div>
-        <button type="button" @click="addIncomeTransaction" class="p-2 bg-blue-500 text-white rounded">収入を追加</button>
+        <button type="button" @click="addIncomeTransaction" class="p-2 bg-blue-500 text-white rounded">
+          <font-awesome-icon :icon="['fas', 'plus']" />
+        </button>
       </div>
       <!-- Expense Section -->
       <div class="w-full px-2 mt-4">
@@ -65,7 +67,9 @@
             <font-awesome-icon :icon="['fas', 'trash']" />
           </button>
         </div>
-        <button type="button" @click="addExpenseTransaction" class="p-2 bg-red-500 text-white rounded">支出を追加</button>
+        <button type="button" @click="addExpenseTransaction" class="p-2 bg-red-500 text-white rounded">
+          <font-awesome-icon :icon="['fas', 'plus']" />
+        </button>
       </div>
     </div>
     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

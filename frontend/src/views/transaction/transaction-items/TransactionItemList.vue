@@ -15,7 +15,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in items" :key="item.id" @click="navigateToDetail(item.id)">
+        <tr v-for="item in items" :key="item.id" @click="navigateToDetail(item.id)"
+        :class="{'income-row': item.item_type === 'income', 'expense-row': item.item_type === 'expense'}">
           <td>{{ item.item_type }}</td>
           <td>{{ item.item_name }}</td>
           <td>{{ item.transaction_day }}日</td>
@@ -78,5 +79,14 @@ function navigateToDetail(itemId: number) {
 .table tr:hover {
   background-color: #f5f5f5;
   cursor: pointer;
+}
+.income-row {
+  background-color: #eaffea; /* totalBalanceColorのbg-green-100に相当する色 */
+  color: #34a853; /* totalBalanceTextColorのtext-green-800に相当する色 */
+}
+
+.expense-row {
+  background-color: #ffebee; /* totalBalanceColorのbg-red-100に相当する色 */
+  color: #d32f2f; /* totalBalanceTextColorのtext-red-800に相当する色 */
 }
 </style>
