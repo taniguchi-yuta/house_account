@@ -6,10 +6,10 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - FLASK_APP=/app/backend/app/app.py
-      - FLASK_ENV=development
-      - DATABASE_URL=mysql+pymysql://root:password@db:3306/house_account_local
-      - ALLOWED_ORIGINS=http://localhost:5173  # ローカル環境用の設定
+      - FLASK_APP=${FLASK_APP}
+      - FLASK_ENV=${FLASK_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
     volumes:
       - ./backend:/app/backend
     working_dir: /app/backend/app
@@ -30,10 +30,10 @@ services:
   db:
     image: mysql:8.1
     environment:
-      - MYSQL_ROOT_PASSWORD=password  # root ユーザーのパスワード
-      - MYSQL_DATABASE=house_account_local         # 初期に作成するデータベース名
-      - MYSQL_USER=root                   # 新しいユーザー名
-      - MYSQL_PASSWORD=password           # 新しいユーザーのパスワード
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "3307:3306"
     volumes:

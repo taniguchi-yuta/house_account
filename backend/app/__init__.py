@@ -23,8 +23,7 @@ api = Api(app)
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'
 jwt = JWTManager(app)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@db:3306/house_account_local'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 通常は不要なのでFalseにしておきます。
 
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'fallback_default_key')
