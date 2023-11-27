@@ -16,6 +16,10 @@ RUN npm install
 # Viteをグローバルにインストール（トラブルシュートのため）
 RUN npm install -g vite
 
+# .env ファイルをコピー（ルートディレクトリから）
+COPY .env.development ./
+COPY .env.production ./
+
 # アプリケーションのソースをコピー
 COPY ./frontend ./
 

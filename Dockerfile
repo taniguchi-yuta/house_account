@@ -10,6 +10,10 @@ COPY ./backend/requirements.txt ./requirements.txt
 # ライブラリのインストール
 RUN pip install --no-cache-dir -r requirements.txt
 
+# .env ファイルをコピー（ルートディレクトリから）
+COPY .env.development ./
+COPY .env.production ./
+
 # アプリケーションのソースをコピー
 COPY ./backend ./
 
