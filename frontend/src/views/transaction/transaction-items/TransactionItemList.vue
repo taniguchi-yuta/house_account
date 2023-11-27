@@ -46,7 +46,7 @@ const errorMessage = ref('');
 
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/v1/transactions/items');
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/items`);
     if (response.data.status === 'success') {
       items.value = response.data.items;
     } else {

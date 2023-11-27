@@ -45,7 +45,7 @@ onMounted(async () => {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
     }
 
-    const response = await axios.get('http://localhost:5000/api/v1/users/current');
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/users/current`);
 
     if (response.data.status === "success") {
       userData.value = {
@@ -68,7 +68,7 @@ async function updateUserInfo() {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
     }
 
-    const response = await axios.put('http://localhost:5000/api/v1/users/update', userData.value);
+    const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/v1/users/update`, userData.value);
 
     if (response.data.status === "success") {
       successMessage.value = "ユーザー情報が正常に更新されました！";

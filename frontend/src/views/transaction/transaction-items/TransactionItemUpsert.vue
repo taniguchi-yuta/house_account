@@ -81,7 +81,7 @@ async function fetchData() {
   if (!isUpdateMode.value) return
 
   try {
-    const response = await axios.get(`http://localhost:5000/api/v1/transactions/item/${itemID.value}`)
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/item/${itemID.value}`)
     if (response.data && response.data.status === 'success') {
       itemType.value = response.data.item.item_type
       itemName.value = response.data.item.item_name
@@ -122,9 +122,9 @@ async function onSubmit() {
       TransactionDay: parseInt(transactionDay.value)
     }
     if (isUpdateMode.value) {
-      response = await axios.put(`http://localhost:5000/api/v1/transactions/item/${itemID.value}`, payload)
+      response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/item/${itemID.value}`, payload)
     } else {
-      response = await axios.post('http://localhost:5000/api/v1/transactions/item', payload)
+      response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/item`, payload)
     }
 
     if (response.data.status === 'success') {

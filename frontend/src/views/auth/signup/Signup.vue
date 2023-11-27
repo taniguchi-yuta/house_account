@@ -77,7 +77,7 @@
     loading.value = true;  // ローディング状態を開始
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/users/signup', {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/users/signup`, {
         emailAddress: email.value,
         password: password.value,
         // nameは今回のUIから取得できないので、指定していません。

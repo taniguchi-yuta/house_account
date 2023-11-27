@@ -176,7 +176,7 @@ watch([selectedYear, selectedMonth], () => {
 // 全ての入出金情報を取得する
 const fetchAllTransactions = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/v1/transactions/monthly');
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/monthly`);
     if (response.data && response.data.success) {
       monthlyTransactions.value = response.data.transactions;
       updateFilteredTransactions();
@@ -204,7 +204,7 @@ const updateFilteredTransactions = () => {
 
 const fetchTransactionItems = async () => {
     try {
-        const response = await axios.get('http://localhost:5000/api/v1/transactions/items');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/items`);
         if (response.data && response.data.status === "success") {
             transactionItems.value = response.data.items;
         } else {
@@ -300,7 +300,7 @@ async function onSubmit() {
   console.log(requestData)
 
   try {
-    const response = await axios.post('http://localhost:5000/api/v1/transactions/monthly', requestData);
+    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/monthly`, requestData);
 
     if (response.data && response.data.status === "success") {
       // 成功メッセージを表示
@@ -331,7 +331,7 @@ const removeIncomeTransaction = async (index) => {
   console.log(transaction)
   if (transaction && transaction.id) {
     try {
-      await axios.delete(`http://localhost:5000/api/v1/transactions/monthly/${transaction.id}`);
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/monthly/${transaction.id}`);
       incomeTransactions.value.splice(index, 1);
       // 他のUI更新や成功メッセージの表示など
     } catch (error) {
@@ -345,7 +345,7 @@ const removeExpenseTransaction = async (index) => {
   const transaction = expenseTransactions.value[index];
   if (transaction && transaction.id) {
     try {
-      await axios.delete(`http://localhost:5000/api/v1/transactions/monthly/${transaction.id}`);
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/monthly/${transaction.id}`);
       expenseTransactions.value.splice(index, 1);
       // 他のUI更新や成功メッセージの表示など
     } catch (error) {

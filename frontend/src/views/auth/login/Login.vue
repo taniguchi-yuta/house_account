@@ -46,9 +46,6 @@
   const router = useRouter();
   const token = ref('');
 
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-  console.log('---------------' + apiBaseUrl)
-
   const formReady = computed(() => !emailErrors.value.length && !passwordErrors.value.length);
 
   async function onsubmit() {
@@ -60,7 +57,7 @@
     if (emailErrors.value.length || passwordErrors.value.length) return;
 
     try {
-      const response = await axios.post(`${apiBaseUrl}/api/v1/users/login`, {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/users/login`, {
         emailAddress: email.value,
         password: password.value,
       });
