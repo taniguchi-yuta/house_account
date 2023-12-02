@@ -6,10 +6,10 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - FLASK_APP=${FLASK_APP}
-      - FLASK_ENV=${FLASK_ENV}
-      - DATABASE_URL=${DATABASE_URL}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - FLASK_APP='${FLASK_APP}'
+      - FLASK_ENV='${FLASK_ENV}'
+      - DATABASE_URL='${DATABASE_URL}'
+      - ALLOWED_ORIGINS='${ALLOWED_ORIGINS}'
     volumes:
       - ./backend:/app/backend
     working_dir: /app/backend/app
@@ -23,7 +23,7 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+      - VITE_API_BASE_URL='${VITE_API_BASE_URL}'
     volumes:
       - ./frontend:/app/frontend
       - /app/frontend/node_modules
@@ -32,10 +32,10 @@ services:
   db:
     image: mysql:8.1
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE='${MYSQL_DATABASE}'
+      - MYSQL_USER='${MYSQL_USER}'
+      - MYSQL_ROOT_PASSWORD='${MYSQL_ROOT_PASSWORD}'
+      - MYSQL_PASSWORD='${MYSQL_PASSWORD}'
     ports:
       - "3307:3306"
     volumes:
