@@ -123,7 +123,7 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     // トークンが存在しない場合
-    if (to.name !== 'login') {
+    if (to.name !== 'login' && to.name !== 'signup') {
       next({ name: 'login' }); // ログインページにリダイレクト
     } else {
       next(); // 既にログインページにいる場合はそのまま
