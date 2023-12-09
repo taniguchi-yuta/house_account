@@ -605,7 +605,8 @@
     "transactionDay": "Trans. Day",
     "totalIncome": "Total Income",
     "totalExpense": "Total Expense",
-    "balance": "Balance"
+    "balance": "Balance",
+    "isActive": "isActive"
   },
   "monthlyRecord": {
     "month": "Month",

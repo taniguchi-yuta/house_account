@@ -16,7 +16,10 @@
       </thead>
       <tbody>
         <tr v-for="item in items" :key="item.id" @click="navigateToDetail(item.id)"
-        :class="{'income-row': item.item_type === 'income', 'expense-row': item.item_type === 'expense'}">
+        :class="[
+            item.item_type === 'income' ? 'income-row' : 'expense-row',
+            !item.is_active ? 'inactive-row' : '', // is_active データに基づいてクラスを設定
+          ]">
           <td>{{ item.item_type }}</td>
           <td>{{ item.item_name }}</td>
           <td>{{ item.transaction_day }}日</td>
@@ -88,5 +91,12 @@ function navigateToDetail(itemId: number) {
 .expense-row {
   background-color: #ffebee; /* totalBalanceColorのbg-red-100に相当する色 */
   color: #d32f2f; /* totalBalanceTextColorのtext-red-800に相当する色 */
+}
+
+.inactive-row {
+  background-color: #f2f2f2; /* グレーアウトの背景色を変更 */
+  color: #888888; /* グレーアウトのテキストカラーを変更 */
+  opacity: 0.7; /* グレーアウトの透明度を調整 */
+  cursor: not-allowed; /* グレーアウト時のカーソルを変更 */
 }
 </style>

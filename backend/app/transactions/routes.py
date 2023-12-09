@@ -27,6 +27,7 @@ def get_transaction_item(item_id):
         "item_name": item.item_name,
         "item_type": item.item_type,
         "transaction_day": item.transaction_day,
+        "is_active": item.is_active,
         "created_at": item.created_at.strftime('%Y-%m-%d %H:%M:%S'),  # assuming created_at is a datetime field
         "updated_at": item.updated_at.strftime('%Y-%m-%d %H:%M:%S')   # assuming updated_at is a datetime field
     }
@@ -43,6 +44,7 @@ def add_item():
     item_type = request.json.get('ItemType', None)
     item_name = request.json.get('ItemName', None)
     transaction_day = request.json.get('TransactionDay', None)
+    is_active = request.json.get('IsActive', None)
 
     if not item_type or item_type not in ['income', 'expense']:
         return jsonify({"status": "error", "message": "Invalid or missing ItemType parameter"}), 400
@@ -57,7 +59,8 @@ def add_item():
         user_id=user_id, 
         item_name=item_name, 
         item_type=item_type,
-        transaction_day=transaction_day
+        transaction_day=transaction_day,
+        is_active=is_active
     )
     
     new_item.created_by = user_id
@@ -80,6 +83,7 @@ def update_transaction_item(item_id):
     item_type = request.json.get('ItemType')
     item_name = request.json.get('ItemName')
     transaction_day = request.json.get('TransactionDay')
+    is_active = request.json.get('IsActive')
 
     if not any([item_type, item_name]):
         return jsonify({"status": "error", "message": "Provide at least one parameter to update (ItemType or ItemName)"}), 400
@@ -102,6 +106,7 @@ def update_transaction_item(item_id):
         item.item_name = item_name
     if transaction_day is not None:  # transaction_dayが指定されている場合のみ更新
         item.transaction_day = transaction_day
+    item.is_active = is_active
 
     item.updated_by = user_id  # Typo fix: update_by -> updated_by
     try:
@@ -126,6 +131,7 @@ def get_items():
         "item_name": item.item_name,
         "item_type": item.item_type,
         "transaction_day": item.transaction_day,
+        "is_active": item.is_active,
         "created_at": item.created_at.strftime('%Y-%m-%d %H:%M:%S'),  # assuming created_at is a datetime field
         "updated_at": item.updated_at.strftime('%Y-%m-%d %H:%M:%S')   # assuming updated_at is a datetime field
     } for item in items]

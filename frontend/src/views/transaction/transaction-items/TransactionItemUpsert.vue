@@ -32,6 +32,12 @@
       max="31"
     />
 
+    <!-- IsActive Checkbox -->
+    <div class="mb-4">
+      <input type="checkbox" v-model="isActive" id="isActiveCheckbox">
+      <label for="isActiveCheckbox">{{ t('transaction.isActive') }}</label>
+    </div>
+
     <!-- Success Message -->
     <div v-if="successMessage" class="success-message">
       {{ successMessage }}
@@ -75,6 +81,7 @@ const itemTypes = ref([
   { text: t('transaction.income'), value: 'income' },
   { text: t('transaction.expense'), value: 'expense' }
 ]);
+const isActive = ref(true); // デフォルトはtrueに設定
 
 // Fetch initial data for the form
 async function fetchData() {
@@ -86,6 +93,7 @@ async function fetchData() {
       itemType.value = response.data.item.item_type
       itemName.value = response.data.item.item_name
       transactionDay.value = response.data.item.transaction_day
+      isActive.value = response.data.item.is_active
     }
   } catch (error) {
     console.error('Failed to fetch the item data', error)
@@ -119,7 +127,8 @@ async function onSubmit() {
     const payload = {
       ItemType: itemType.value.value,
       ItemName: itemName.value,
-      TransactionDay: parseInt(transactionDay.value)
+      TransactionDay: parseInt(transactionDay.value),
+      IsActive: isActive.value
     }
     if (isUpdateMode.value) {
       response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/item/${itemID.value}`, payload)

@@ -358,11 +358,11 @@ const removeExpenseTransaction = async (index) => {
 const addAllExistingItemsAsTransactions = () => {
   incomeTransactions.value = transactionItems.value
     .filter(item => item.item_type === 'income')
-    .map(item => ({ item_name: item.item_name, amount: 0 }));
+    .map(item => ({ item_name: item.item_name, amount: 0, isNew: true }));
 
   expenseTransactions.value = transactionItems.value
     .filter(item => item.item_type === 'expense')
-    .map(item => ({ item_name: item.item_name, amount: 0 }));
+    .map(item => ({ item_name: item.item_name, amount: 0, isNew: true }));
 };
 
 function formatCurrency(value) {

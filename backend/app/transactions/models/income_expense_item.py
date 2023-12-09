@@ -10,6 +10,7 @@ class IncomeExpenseItem(db.Model, TimestampMixin):
     item_name = db.Column(db.String(255), nullable=False)
     item_type = db.Column(db.Enum('income', 'expense'), nullable=False)
     transaction_day = db.Column(db.Integer)  # 追加：毎月の支払い日（1日から31日）
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     # Relationship
     monthly_records = db.relationship('MonthlyRecord', backref=backref('income_expense_item', lazy=True))
