@@ -178,6 +178,42 @@ def add_monthly_transactions():
 
     return jsonify({"status": "success", "message": "Monthly transactions added successfully!"}), 201
 
+@transactions_blueprint.route('/api/v1/transactions/monthly/<int:transaction_id>', methods=['PUT'])
+@jwt_required()
+def update_monthly_transaction(transaction_id):
+    if not request.is_json:
+        return jsonify({"status": "error", "message": "Missing JSON in request"}), 400
+
+    month = request.json.get('month')
+    amount = request.json.get('amount')
+    item_name = request.json.get('item_name')
+
+    if not all([month, amount, item_name]):
+        return jsonify({"status": "error", "message": "Missing required parameters"}), 400
+
+    user_id = get_jwt_identity()
+
+    transaction = MonthlyRecord.query.get(transaction_id)
+    if not transaction:
+        return jsonify({"status": "error", "message": "Transaction not found"}), 404
+    if transaction.user_id != user_id:
+        return jsonify({"status": "error", "message": "Not authorized to update this transaction"}), 403
+
+    item = IncomeExpenseItem.query.filter_by(item_name=item_name, user_id=user_id).first()
+    if not item:
+        return jsonify({"status": "error", "message": "Item not found"}), 404
+
+    transaction.month = month
+    transaction.amount = amount
+    transaction.income_expense_item_id = item.id
+
+    try:
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Monthly transaction updated successfully!"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": "An error occurred: " + str(e)}), 500
+
 
 @transactions_blueprint.route('/api/v1/transactions/monthly', methods=['GET'])
 @jwt_required()  # JWTトークンが有効かチェック

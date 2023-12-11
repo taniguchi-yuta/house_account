@@ -8,11 +8,11 @@ import router from './router'
 import vuesticGlobalConfig from './services/vuestic-ui/global-config'
 import App from './App.vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faPlus, faRefresh } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import axios from 'axios'
 
-library.add(faTrash, faPlus)
+library.add(faTrash, faPlus, faRefresh)
 
 const app = createApp(App)
 

@@ -35,6 +35,9 @@
               :error-messages="amountErrors"
             />
           </div>
+          <button type="button" @click="updateTransaction(incomeTransaction)">
+            <font-awesome-icon :icon="['fas', 'refresh']" />
+          </button>
           <button type="button" @click="removeIncomeTransaction(index)" class="icon-button">
             <font-awesome-icon :icon="['fas', 'trash']" />
           </button>
@@ -63,6 +66,9 @@
               :error-messages="amountErrors"
             />
           </div>
+          <button type="button" @click="updateTransaction(incomeTransaction)">
+            <font-awesome-icon :icon="['fas', 'refresh']" />
+          </button>
           <button type="button" @click="removeExpenseTransaction(index)" class="icon-button">
             <font-awesome-icon :icon="['fas', 'trash']" />
           </button>
@@ -138,6 +144,7 @@ const incomeAmount = ref(0);
 const expenseAmount = ref(0);
 const errors = ref([]);
 const successMessage = ref(null);
+const errorMessage = ref(null);
 
 const amountErrors = ref([]);
 
@@ -213,6 +220,24 @@ const fetchTransactionItems = async () => {
     } catch (error) {
         errors.value = ["APIからのデータ取得中にエラーが発生しました。"];
     }
+};
+
+const updateTransaction = async (transaction) => {
+  try {
+    const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/v1/transactions/monthly/${transaction.id}`, transaction);
+    // Handle success - fetch updated transactions or update UI
+    if (response.data.status === 'success') {
+      successMessage.value = t('transaction.successfulOperation')
+      setTimeout(() => successMessage.value = '', 3000) // Clear the message after 3 seconds
+    } else {
+      errorMessage.value = response.data.message || t('transaction.failedOperation')
+      setTimeout(() => errorMessage.value = '', 3000) // Clear the message after 3 seconds
+    }
+  } catch (error) {
+    errorMessage.value = t('transaction.failedOperation')
+    console.error(error)
+    setTimeout(() => errorMessage.value = '', 3000)
+  }
 };
 
 onMounted(async() => {
