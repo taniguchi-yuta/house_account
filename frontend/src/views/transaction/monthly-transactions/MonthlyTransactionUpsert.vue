@@ -66,7 +66,7 @@
               :error-messages="amountErrors"
             />
           </div>
-          <button type="button" @click="updateTransaction(incomeTransaction)">
+          <button type="button" @click="updateTransaction(expenseTransaction)">
             <font-awesome-icon :icon="['fas', 'refresh']" />
           </button>
           <button type="button" @click="removeExpenseTransaction(index)" class="icon-button">
