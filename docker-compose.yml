@@ -9,6 +9,7 @@ services:
     volumes:
       - ./nginx/templates:/etc/nginx/templates
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - /etc/letsencrypt:/etc/letsencrypt
     environment:
       - API_URL=${VITE_API_BASE_URL_DOCKER}
       - FRONTEND_URL=${ALLOWED_ORIGINS}
