@@ -1,5 +1,14 @@
 server {
+    # HTTPからHTTPSへのリダイレクトを行うサーバーブロック
     listen 80;
+    server_name house-account.com;
+    return 301 https://$host$request_uri;
+
+    # HTTPSリクエストを処理するサーバーブロック
+    listen 443 ssl;
+    server_name house-account.com;
+    ssl_certificate /etc/letsencrypt/live/house-account.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/house-account.com/privkey.pem;
 
     location /api {
         proxy_pass ${API_URL};
