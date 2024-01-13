@@ -1,10 +1,13 @@
+# HTTPからHTTPSへのリダイレクトを行うサーバーブロック
 server {
-    # HTTPからHTTPSへのリダイレクトを行うサーバーブロック
     listen 80;
     server_name house-account.com;
-    return 301 https://$host$request_uri;
 
-    # HTTPSリクエストを処理するサーバーブロック
+    return 301 https://$host$request_uri;
+}
+
+# HTTPSリクエストを処理するサーバーブロック
+server {
     listen 443 ssl;
     server_name house-account.com;
     ssl_certificate /etc/letsencrypt/live/house-account.com/fullchain.pem;
